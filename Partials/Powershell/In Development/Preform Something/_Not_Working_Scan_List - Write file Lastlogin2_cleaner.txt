@@ -1,0 +1,136 @@
+# Preqreqestits and explnation of script
+# Open notepad and save it as anyname but as a .csv instead of .txt.
+#    This is beucase excel can open csv files but like to save encoded as other formats like xls
+# Now open the newly created csv file with excel and past the EE numbers in the A column.
+# Save the file
+#
+#
+# Created 9MARCH2023
+# Mainttained by Russell King
+function SearchADLex($EE) {
+    Write-Host $EE
+    $OUSearchScope = 'OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'
+    $hostname = Get-ADComputer -Filter "Name -like '*$EE'" -SearchBase $OUSearchScope| Select -ExpandProperty Name
+    $MachineLogFile = "$MachineStatsDir"+"$hostname.log"
+}
+
+function Mount-Y_Drive {
+    if(Test-Path \\v09.med.va.gov\lex\Public)
+    {
+        if (((New-Object System.IO.DriveInfo("Y:")).DriveType -ne "NoRootDirectory")) 
+            {
+                Write-Host "Network Paths Mounted" -foreground green
+            }
+        else
+            {
+                net use Y: \\v09.med.va.gov\lex\Public
+                Write-Host "Network Paths NOT mounted! Mounting now" -foreground red
+                Write-Host "Network Paths Mounted" -foreground green
+            }
+    }
+    else { 
+        if (((New-Object System.IO.DriveInfo("Y:")).DriveType -ne "NoRootDirectory"))
+            {
+                net use Y: /delete
+                Write-Host "removing Y:, please rerun" -foreground red
+            }
+    }
+}
+
+function read_logfile {
+    if ($log_read = Get-Content -tail 1 $MachineLogFile){
+    $presplit= $log_read -split "\[LOGGED " -split "\], " -split " @  " -split " "
+    $split = $presplit.trim() -ne ""
+    $last_login = $split -join ","
+    }
+    else{
+    $last_login = "Log stat does not exist"
+    }
+}
+
+function ping_hostname{
+    if (test-connection $hostname -count 1 -quiet) {
+        Write-host $hostname "Ping succeeded. $last_login" -foreground green
+        Add-Content -Path $online "$EE,$hostname,$last_login"
+        Add-Content -Path $entire_scan "$EE,$hostname,$last_login"
+    } 
+    else {
+        Write-host $hostname "Ping failed. $last_login" -foreground red
+        Add-Content -Path $offline "$EE,$hostname,$last_login"
+        Add-Content -Path $entire_scan "$EE,$hostname,$last_login"
+    }
+}
+
+function SearchAD_VISN09 {
+    Write-host $EE "Could Not Find $EE in Lexington, searching all of VISN09"
+    $OUSearchScope = 'OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'
+    $hostname = Get-ADComputer -Filter "Name -like '*$EE'" -SearchBase $OUSearchScope| Select -ExpandProperty Name
+}
+
+
+Mount-Y_Drive
+
+Add-Type -AssemblyName System.Windows.Forms
+$Filelocation = New-Object -TypeName System.Windows.Forms.OpenFileDialog
+$Filelocation.ShowDialog()
+$MachineStatsDir = "Y:\Public\LogonScripts\Lognoff$\machinestats\"
+$list = Get-Content -Path $Filelocation.Filename
+$dir_string = $Filelocation.Filename.TrimEnd($Filelocation.SafeFileName)
+$offline = $dir_string + "Offline Systems.txt"
+$online = $dir_string + "Online Systems.txt"
+$not_in_AD =  $dir_string + "NotInActiveDirectory.txt"
+$entire_scan = $dir_string +"EntireScan.txt"
+Write-Host "Reading file" $Filelocation.Filename
+Write-Host "Started Pinging.."
+
+function Main {
+    SearchADLex($_) #Search AD for name
+
+    #If EE is found in AD
+    if ($hostname) {
+      last_login
+      ping_hostname
+    }
+
+    #If EE not found in AD
+    elseif (!$hostname) { 
+        SearchAD_VISN09
+        
+        #Wider search still not found EE
+        if (!$hostname) { 
+
+        #Write Screen
+        Write-host $EE "Not in VISN09 OU" -foreground red 
+
+        #Write Log Files
+        Add-Content -Path $not_in_AD "$EE, NOTINAD" ; Add-Content -Path $entire_scan "$EE, NOTINAD"
+        }
+
+        #Found EE, make sure its a LEX machine
+        elseif ($hostname -match "LEX"){
+            if (test-connection $hostname -count 1 -quiet) {
+                ping_hostname
+            }
+            else {
+
+                #Write to screen
+                Write-host $hostname "Ping failed. $LastLogin" -foreground red
+                
+                #Write Log Files
+                Add-Content -Path $offline "$EE,$hostname,$last_login" ; Add-Content -Path $entire_scan "$EE,$hostname,$last_login"
+            }
+    
+    
+        }
+    }
+
+}
+
+
+
+$list|Main
+
+
+
+
+Write-Host "Pinging Completed."

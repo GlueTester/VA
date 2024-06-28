@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+	<root type="user">
+		<map/>
+		<node name="HkcKeyboardMacros">
+			<map/>
+			<node name="BaseWin10">
+				<map>
+					<entry key="hotKey" value="-1"/>
+                    <entry key="macroSequence" value="p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 16&amp;&amp;r 16&amp;&amp;d 500&amp;&amp;p 22&amp;&amp;r 22&amp;&amp;d 500&amp;&amp;p 48&amp;&amp;r 48&amp;&amp;d 500&amp;&amp;p 1&amp;&amp;r 1&amp;&amp;d 500&amp;&amp;p 10&amp;&amp;r 10&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14p 83&amp;&amp;r 83&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 56&amp;&amp;r 56&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 45&amp;&amp;r 45&amp;&amp;d 500&amp;&amp;p 29&amp;&amp;r 29&amp;&amp;d 500&amp;&amp;p 30&amp;&amp;r 30&amp;&amp;d 500&amp;&amp;p 10&amp;&amp;r 10&amp;&amp;d 500&amp;&amp;p 10&amp;&amp;r 10&amp;&amp;d 500&amp;&amp;p 2&amp;&amp;r 2&amp;&amp;d 500&amp;&amp;p 17&amp;&amp;r 17&amp;&amp;d 500&amp;&amp;p 32&amp;&amp;r 32&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14p 83&amp;&amp;r 83&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 18&amp;&amp;r 18&amp;&amp;d 500&amp;&amp;p 10&amp;&amp;r 10&amp;&amp;d 500&amp;&amp;p 3&amp;&amp;r 3&amp;&amp;d 500&amp;&amp;p 46&amp;&amp;r 46&amp;&amp;d 500&amp;&amp;p 10&amp;&amp;r 10&amp;&amp;d 500&amp;&amp;p 9&amp;&amp;r 9&amp;&amp;d 500&amp;&amp;p 37&amp;&amp;r 37&amp;&amp;d 500&amp;&amp;p 17&amp;&amp;r 17&amp;&amp;d 500&amp;&amp;p 44&amp;&amp;r 44&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;d 500&amp;&amp;p 27&amp;&amp;r 27"/>
+                </map>
+			</node>
+		</node>
+	</root>
+</preferences>

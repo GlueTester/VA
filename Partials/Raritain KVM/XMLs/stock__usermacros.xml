@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE preferences SYSTEM "http://java.sun.com/dtd/preferences.dtd">
+<preferences EXTERNAL_XML_VERSION="1.0">
+	<root type="user">
+		<map/>
+		<node name="HkcKeyboardMacros">
+			<map/>
+			<node name="thething2">
+				<map>
+					<entry key="hotKey" value="-1"/>
+					<entry key="macroSequence" value="d 500&amp;&amp;d 500&amp;&amp;d 500&amp;&amp;d 500&amp;&amp;p 14&amp;&amp;r 14&amp;&amp;p 27&amp;&amp;r 27&amp;&amp;p 18&amp;&amp;r 18"/>
+					<entry key="name" value="thething"/>
+				</map>
+			</node>
+		</node>
+	</root>
+</preferences>

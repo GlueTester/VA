@@ -1,0 +1,62 @@
+# Powershell script to remove user profiles
+
+# Update the $array the list of user profiles to remove
+#Source: https://paullimblog.wordpress.com/2019/12/31/delete-user-profiles-with-powershell/#:~:text=There%20are%202%20ways%20to%20delete%20old%20Windows,skip%20%E2%80%9CSpecial%E2%80%9D%20accounts%20such%20as%20LocalService%2C%20NetworkService%2C%20etc.
+
+#List all users profiles
+$PC = Read-Host "What is the Computer Name"
+
+#Run on Remote System
+$Profiles= Get-CimInstance -ComputerName $PC -Class Win32_UserProfile |Select-Object localpath,Loaded | where {(($_.localpath -notlike “*Administrator”) -and ($_.localpath -notlike “C:\WINDOWS*”) -and ($_.Loaded -notlike "True*"))}| Foreach-Object {$_.LocalPath.split(‘\’)[-1] }
+
+#Run On local system
+#$Profiles= Get-CimInstance -Class Win32_UserProfile |Select-Object localpath,Loaded | where {(($_.localpath -notlike “*Administrator”) -and ($_.localpath -notlike “C:\WINDOWS*”) -and ($_.Loaded -notlike "True*"))}| Foreach-Object {$_.LocalPath.split(‘\’)[-1] }
+
+#For stat only
+$profilescount=($Profiles|measure)
+$array = @($Profiles)
+
+
+<#
+$array = @("localuser1","localuser2")
+#>
+
+$array | ForEach-Object {
+
+    Write-Host '---'
+
+    Write-Host 'Removing: ' $_
+
+    $localPath = $_
+
+    $result = Get-CimInstance Win32_UserProfile | Where-Object { $_.LocalPath.split('\')[-1] -eq $localPath }
+
+    if ($result -eq $null) {
+
+        Write-Host 'Profile does not exist: ' $localPath
+
+        return
+
+    }
+
+    # remove user profile
+
+    Get-CimInstance Win32_UserProfile | Where-Object { $_.LocalPath.split('\')[-1] -eq $localPath } | Remove-CimInstance `
+
+        #-WhatIf
+
+    # check if profile has been removed
+
+    $result = Get-CimInstance Win32_UserProfile | Where-Object { $_.LocalPath.split('\')[-1] -eq $localPath }
+
+    if ($result -eq $null) {
+
+        Write-Host 'Profile is removed: ' $localPath
+
+    } else {
+
+        Write-Host 'Error removing profile: ' $localPath
+
+    }
+
+}

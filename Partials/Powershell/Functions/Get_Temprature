@@ -1,0 +1,62 @@
+#problem exist where teh object TZCPU doesnt exist on some systems
+#TZ is termal zone
+
+## Sources
+#Filtering
+#https://www.itprotoday.com/powershell/powershell-basics-filtering-objects#:~:text=For%20example%2C%20you%20can%20specify%20the%20Name%20property,asterisk%20%28%2A%29%20wildcard%20at%20the%20beginning%20and%20end.
+
+#Temp
+#https://stackoverflow.com/questions/39738494/get-cpu-temperature-in-cmd-power-shell
+
+function Get-Temperature {
+    If ($data = Get-WMIObject -Query "SELECT * FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation" -Namespace "root/CIMV2" | Where-Object {$_.Name -like '*CPU*'}) {
+        $data = Get-WMIObject -Query "SELECT * FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation" -Namespace "root/CIMV2" | Where-Object {$_.Name -like '*CPU*'}
+    }
+    else {
+        $predata = Get-WMIObject -Query "SELECT * FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation" -Namespace "root/CIMV2"| Where-Object {$_.Name -like '*TH*'}
+        $data = $predata[5]
+    }
+    $temp = $data.HighPrecisionTemperature
+    $currentTempKelvin = $temp / 10
+    $currentTempCelsius = $currentTempKelvin - 273.15
+    $currentTempFahrenheit = (9/5) * $currentTempCelsius + 3
+    return $currentTempFahrenheit
+    }
+# call with 
+#Get-Temperature
+
+
+
+
+
+
+
+
+
+
+
+
+<# Testing with switch
+function Get-Temperature ($location) {
+switch ($location)
+    {    
+        'batt' { $input = 1    }
+        'overall' { $input = 2    }
+        'video' { $input = 4    }
+        'cpu' { $input = 5    }
+    }
+  
+
+
+$data = Get-WMIObject -Query "SELECT * FROM Win32_PerfFormattedData_Counters_ThermalZoneInformation" -Namespace "root/CIMV2"
+$temp = @($data)[$input].HighPrecisionTemperature
+#$temp = @($data)[5].HighPrecisionTemperature
+$currentTempKelvin = $temp / 10
+$currentTempCelsius = $currentTempKelvin - 273.15
+$currentTempFahrenheit = (9/5) * $currentTempCelsius + 3
+return $currentTempFahrenheit
+}
+# call with 
+#Get-Temperature (cpu,batt,etc)
+
+#>

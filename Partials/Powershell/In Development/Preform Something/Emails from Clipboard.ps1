@@ -1,0 +1,183 @@
+#first take the list and paste in Excel, then save to csv and open in Notepad
+#then place in array below and dod fidn for "  
+# then press ctrl and enter to cause a retunr in find
+#now reaplce with the same but a , at the end
+
+
+
+#NEW instructions: copy names into clipboard and run
+
+<#
+$list = @(
+    "DALE,MASON T",
+    "DANIEL,CHRISTINE Y",
+    "DAUKAS,CHASTITY L",
+    "DAVENPORT,TIFFANY N",
+    "DAVEY,WILLIAM P",
+    "DAVIS,CAMESHA M",
+    "DAVIS,CHRISTINA",
+    "DAVIS,KELLY W",
+    "DAVIS,LAKESE",
+    "DAVIS,RAYNETTA L",
+    "DAVIS,ROBERT B",
+    "DAVIS,TINA E",
+    "DAY,JENNIFER H",
+    "DEAN,AMANDA J",
+    "DELANEY,SARAH E",
+    "DEMERS,BRENDA K",
+    "DEPRIEST,CARRA",
+    "DEVEIRA,ADRIANNE A",
+    "DEVIN,HEATHER N",
+    "DILLER,MEGAN L",
+    "DINGLE,EJAUN",
+    "DISSELKAMP,MARGARET",
+    "DIXON,JENNIFER R",
+    "DIXON,MIRANDA",
+    "DORFMAN,ROBERT",
+    "DORSEY,JOHN P",
+    "DOUGHERTY,DAWN M",
+    "DOWNING,CASSANDRA C",
+    "DOWNS,TARA N",
+    "DRUMM,JENNIFER L",
+    "DUBOIS,JENNIFER R",
+    "DUGAN,MICHAEL T",
+    "DUMPHORD,CHRISTINA LORRAINE",
+    "DUNCAN,JACOB M",
+    "DUNCAN,SUMER D",
+    "DUNFORD,JUSTIN",
+    "DUNN,BRIAN K",
+    "EADS,PAMELA",
+    "EATMON,TIGH A",
+    "EDEN,KELVEN C",
+    "EDMONDS,APRIL R",
+    "ELBAKOUSH,HESHAAM S",
+    "ELDER,COLLEEN I",
+    "ELGENDY,ISLAM Y",
+    "ELKINS,VICKIE L",
+    "EMERY,CHRISTINA M",
+    "ESSARY,MASON D",
+    "ESTES,SHARON K",
+    "EVANS,ELSIE B",
+    "EVERMAN,HANNAH R",
+    "FAIN,AUDASHA C",
+    "FALLUJI,REEM K",
+    "FARRIS,RYAN",
+    "FARTHING,MIRANDA P",
+    "FAULKENBERG,BRADLEY J",
+    "FAULKNER,HANNAH LAINE",
+    "FEE,BARBARA A",
+    "FEEBACK,MARGARET B",
+    "FELTS,REX K",
+    "FENKER,MARY M",
+    "FENTON,MICHAEL L",
+    "FEREDAY,LYNDA",
+    "FERGUSON,KATRINA A",
+    "FERRELL,SHELLY C",
+    "FERRIER,ALMA",
+    "FIELDS,AARON MATT",
+    "FIELDS,CANDACE",
+    "FIELDS,CANDACE N",
+    "FINCH,DANIEL L",
+    "FINCH,TINA",
+    "FISCHER,JEFFREY S",
+    "FISH,MATTHEW A",
+    "FISHER,MARY M",
+    "FISHER,WAYNE A",
+    "FISHER-WILLIS,ADRIANNA R",
+    "FITZPATRICK,ANITA T",
+    "FLEISCHMAN,ROGER A",
+    "FLEMING,ANGELINA D",
+    "FLETCHER,KRISTEN ELIZABETH",
+    "FLOYD,MYESHIA S",
+    "FLYNN,EMILY J",
+    "FORESTER,ELIZABETH B L",
+    "FOSTER,AMANDA S",
+    "FOSTER,WENDY A",
+    "FOWLER,STEPHANIE D",
+    "FRALEY,JAMIE L",
+    "FRAME,STEVEN",
+    "FRANCE,MORGAN K",
+    "FRANKLIN,JANET R",
+    "FRANKLIN,LESLIE C",
+    "FRANKLIN,MELANIE J",
+    "FRANKLIN,PAIGE A",
+    "FRAZIER,ELIZABETH L",
+    "FRAZIER,TABITHA",
+    "FREDERICK,ROBYN G",
+    "FREEMAN,LEAH G",
+    "FUGATE,ALICE A",
+    "FULKERSON,ANDRONA K",
+    "GABY,CARRIE E",
+    "GAINES,RACHEL NICOLE",
+    "GALECIO VERA,MANUEL",
+    "GALLAGHER,KRISTIN A",
+    "GAMBREL,JAMES R",
+    "GAMBREL,WENDY RETTA",
+    "GANNON,LARA",
+    "GARDNER,ALLISON N",
+    "GARNER,LAURIE K",
+    "GATHY,CHARLANE A",
+    "GAUGHENBAUGH,ANDREW M",
+    "GAYHEART,KIM R",
+    "GAZAVE,EDMOND CURTIS",
+    "GEARHART,ISABELLA R",
+    "GENSEL,HEATHER C",
+    "GERMAN,TERESA C",
+    "GERTON,CARRIE FAIN",
+    "GIBSON,CARMEN C",
+    "GILBERT,SHANA R",
+    "GILLESPIE,LELIA M",
+    "GIRDLER,YONG S",
+    "GIVENS,ROY III",
+    "GLASS,AMANDA N",
+    "GODBY,CHASE H",
+    "GOFORTH,JENNIFER N",
+    "GOODMAN,PHILIP J",
+    "GOODRICH,JOEL D",
+    "GOODSELL,LAURA A",
+    "GORDON-TAYLOR,CM",
+    "GORE,KARA J",
+    "GRAHAM,CASSIE M",
+    "GRANJA INGRAM,NARA M",
+    "GRANT,KOURTNEY T",
+    "GRAY,ADRIAN D",
+    "GRAY,KRISTIAN A",
+    "GRECO,ESTHER L",
+    "GREEN,JANET L",
+    "GREENING,CINDY TAYLOR",
+    "GREER,ANGELA",
+    "GREGORY,BRIAN K",
+    "GRIESINGER,LAWRENCE",
+    "GRIGSBY,TRACEY A",
+    "GRILLET,MORGAN L",
+    "GUERRERO,BERNARDINO J",
+    "GUERRERO,REBECCA V",
+    "GUFFEY,ANGELA N",
+    "GUFFEY,LAURA H",
+    "GULLETT,KEVIN W",
+    "GURNEY,CASSANDRA P",
+    "GUTIERREZ,ABBIE",
+    "GUY,MARY J"
+)
+#>
+
+
+$pre= Get-Clipboard  | Out-File ".\rm.txt" 
+$list = Get-Content ".\rm.txt"
+rm ".\rm.txt"
+$emails  = @()
+
+cls
+foreach ($user in $list ){
+    try {
+    $cleaned = $user.split(" ",2)[0]
+    $firstname = $cleaned.split(",",2)[1]
+    $lastname = $cleaned.split(",",2)[0]
+    $aduser = Get-ADUser -Filter 'GivenName -eq $firstname -and sn -eq $lastname' -properties EmailAddress | select Name, EmailAddress
+    $emails += $aduser
+    }
+    catch {
+        Write-Host "had a prolem with $aduser" -fore "red"
+    }
+}
+$emails

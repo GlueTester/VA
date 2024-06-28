@@ -1,0 +1,84 @@
+# Preqreqestits and explnation of script
+# The script uses a CVS file to supply a list of EEs. It does not use headers and only looks
+# in what would be Column A if viewing in excel.
+# 
+#
+#
+# Created 9MARCH2023
+# Mainttained by Russell King
+
+Add-Type -AssemblyName System.Windows.Forms
+
+function EasyRead{
+    param(
+        [string] $Status,
+        [string] $StatusTextColor,
+        [string] $Comment,
+        [string] $CommentTextColor
+    )
+    switch ($Status.Trim()) {
+        "" {  $Status = "     " }
+        "OK" { $Status = " OK  "}
+        "FAIL" { $Status = " FAIL "}
+        Default {}
+    }
+    Write-Host "[ $Status ]" -fore $StatusTextColor -nonewline; Write-Host "      - $Comment " -fore $CommentTextColor
+
+    <#
+    Usage:
+        EasyRead "OK" "green" "this is a test" "white"
+    #>
+}
+
+$SourceFile = New-Object -TypeName System.Windows.Forms.OpenFileDialog
+$SourceFile.ShowDialog()
+$NoreplyList = New-Object -TypeName System.Windows.Forms.SaveDialog
+$NoreplyList.ShowDialog()
+$MachineStatsDir = "\\v09.med.va.gov\LEX\Workgroup\Public\LogonScripts\Lognoff$\machinestats\"
+$OUSearchScope = 'OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'
+
+
+EasyRead "INFO" "yellow" "Reading File:"+$SourceFile.Filename
+
+#Write-Host "Reading file" $SourceFile.Filename
+
+$list = Get-Content -Path $SourceFile.Filename
+
+Write-Host "Started Pinging.."
+foreach( $EE in $list) {
+    $ComputerName = Get-ADComputer -Filter "Name -like '*$EE'" -SearchBase $OUSearchScope| Select-Object -ExpandProperty Name
+    $MachineLogFile = "$MachineStatsDir\$ComputerName.log"
+     
+
+    if ($ComputerName) {
+    #$MachineStatsDir = "Y:\Public\LogonScripts\Lognoff$\machinestats\$ComputerName.log"
+    $LastLogin = Get-Content -tail 1 $MachineLogFile #| Select-String -Pattern "$SamAccount"
+    }
+
+   if (!$ComputerName) { 
+     Write-host $EE "NOT in AD OU : $OUSearchScope "
+     $MachineLogFile2 = "\\v09.med.va.gov\LEX\Workgroup\Public\LogonScripts\Lognoff$\machinestats\*$EE.log"
+
+     if (Get-Content -tail 1 $MachineLogFile2){
+        $LastLogin = Get-Content -tail 1 $MachineLogFile2
+        Write-host $EE "NOT in AD OU : $OUSearchScope / LastLogin: $LastLogin "
+     }
+     else {
+        Write-host $EE "NOT in AD OU : $OUSearchScope / LastLogin: NOT FOUND"
+     }
+   
+
+   elseif (test-connection $ComputerName -count 1 -quiet) {
+       Write-host $ComputerName "Ping succeeded. $LastLogin" -foreground green
+       
+
+    } else {
+         Write-host $ComputerName "Ping failed. $LastLogin" -foreground red
+    }
+    }
+}
+
+
+
+Write-Host "Pinging Completed."
+

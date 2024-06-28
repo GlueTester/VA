@@ -1,0 +1,102 @@
+# Preqreqestits and explnation of script
+# Open notepad and save it as anyname but as a .csv instead of .txt.
+#    This is beucase excel can open csv files but like to save encoded as other formats like xls
+# Now open the newly created csv file with excel and past the EE numbers in the A column.
+# Save the file
+#
+#
+# Created 9MARCH2023
+# Mainttained by Russell King
+
+function Mount-Y_Drive {
+If(Test-Path \\v09.med.va.gov\lex\Public)
+  {
+    if (((New-Object System.IO.DriveInfo("Y:")).DriveType -ne "NoRootDirectory")) 
+        {
+            Write-Host "Network Paths Mounted" -foreground green
+        }
+    else
+        {
+            net use Y: \\v09.med.va.gov\lex\Public
+            Write-Host "Network Paths NOT mounted! Mounting now" -foreground red
+            Write-Host "Network Paths Mounted" -foreground green
+        }
+  }
+else { 
+    if (((New-Object System.IO.DriveInfo("Y:")).DriveType -ne "NoRootDirectory"))
+        {
+            net use Y: /delete
+            Write-Host "removing Y:, please rerun" -foreground red
+        }
+}
+}
+
+Mount-Y_Drive
+Add-Type -AssemblyName System.Windows.Forms
+$Filelocation = New-Object -TypeName System.Windows.Forms.OpenFileDialog
+$Filelocation.ShowDialog()
+$MachineStatsDir = "Y:\Public\LogonScripts\Lognoff$\machinestats\"
+$list = Get-Content -Path $Filelocation.Filename
+$dir_string = $Filelocation.Filename.TrimEnd($Filelocation.SafeFileName)
+$offline = $dir_string + "Offline Systems.txt"
+$online = $dir_string + "Online Systems.txt"
+$not_in_AD =  $dir_string + "NotInActiveDirectory.txt"
+$tempscan = "C:\temp\scan.txt"
+$entire_scan = $dir_string +"ScanResults.csv"
+
+Write-Host "Reading file" $Filelocation.Filename
+Write-Host "Started Pinging.. of "$list.Count" machines"
+$current_count = $list.Count
+foreach( $EE in $list) {
+    $precent_complete = 100-(($current_count/$list.Count)*100)
+    $OUSearchScope = 'OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'
+    $ComputerName = Get-ADComputer -Filter "Name -like '*$EE'" -SearchBase $OUSearchScope| Select -ExpandProperty Name
+    $MachineLogFile = "$MachineStatsDir"+"$ComputerName.log"
+
+    #If EE is found in AD
+    if ($ComputerName) {
+      if ($log_read = Get-Content -tail 1 $MachineLogFile){
+      $presplit= $log_read -split "\[LOGGED " -split "\], " -split " @  " -split "@" -split " "
+      $split = $presplit.trim() -ne ""
+      $last_login = $split -join ","
+      }
+      else{
+        $last_login = "Log stat does not exist"
+      }
+    }
+
+    #If EE not found in AD
+    if (!$ComputerName) { 
+        Write-host $EE "Could Not Find $EE in Lexington, searching all of VISN09"
+        $OUSearchScope = 'OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'
+        $ComputerName = Get-ADComputer -Filter "Name -like '*$EE'" -SearchBase $OUSearchScope| Select -ExpandProperty Name
+        
+        #Wider search still not found EE
+        if (!$ComputerName) { 
+        Write-host $EE "Not in VISN09 OU : Scan complete:$precent_complete%" -foreground red 
+        Add-Content -Path $tempscan "$EE, NOTINAD" ; #Add-Content -Path $not_in_AD "$EE, NOTINAD" #Writelogs
+        }
+
+        #Found EE, make sure its a LEX machine
+        elseif ($ComputerName -match "LEX"){
+            if (test-connection $ComputerName -count 1 -quiet) {
+                Write-host $ComputerName "Ping succeeded. $last_login : Scan complete:$precent_complete%" -foreground green
+                Add-Content -Path $tempscan "$EE,$ComputerName,$last_login" ; #Add-Content -Path $online "$EE,$ComputerName,$last_login" #Writelogs
+            }
+            else {
+                Write-host $ComputerName "Ping failed. $LastLogin : Scan complete:$precent_complete%" -foreground red
+                Add-Content -Path $tempscan "$EE,$ComputerName,$last_login" ; #Add-Content -Path $offline "$EE,$ComputerName,$last_login" #Writelogs
+            }     
+        }
+    }
+
+   elseif (test-connection $ComputerName -count 1 -quiet) {
+       Write-host $ComputerName "Ping succeeded. $last_login : Scan complete:$precent_complete%" -foreground green
+       Add-Content -Path $tempscan "$EE,$ComputerName,$last_login" ; #Add-Content -Path $online "$EE,$ComputerName,$last_login" #Writelogs
+    } else {
+         Write-host $ComputerName "Ping failed. $last_login : Scan complete:$precent_complete%" -foreground red
+         Add-Content -Path $tempscan "$EE,$ComputerName,$last_login" ; #Add-Content -Path $offline "$EE,$ComputerName,$last_login" #Writelogs
+    }
+    $current_count -= 1
+}
+import-csv $tempscan -delimiter "," | export-csv $entire_scan -NoType ; rm $tempscan  ; Write-Host "Pinging Completed."

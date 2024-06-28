@@ -1,0 +1,76 @@
+##################################################
+#  Linux top equivalent in PowerShell
+##################################################
+$count = 0
+
+if ($args[0] -eq $null) {
+  $SortCol = "Memory"
+} else {
+  $SortCol = $args[0]
+}
+
+if ($args[1] -eq $null) {
+  $Top = 30
+} else {
+  $Top = $args[1]
+}
+
+
+$LogicalProcessors = (Get-WmiObject -class Win32_processor -Property NumberOfLogicalProcessors).NumberOfLogicalProcessors;
+
+function myTopFunc ([string]$SortCol = "Memory", [int]$Top = 30) {
+  ## Check user level of PowerShell
+  if (
+    ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()
+    ).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+  )
+  {
+    $procTbl = get-process -IncludeUserName | select ID, Name, UserName, Description, MainWindowTitle
+  } else {
+    $procTbl = get-process | select ID, Name, Description, MainWindowTitle
+  }
+
+  Get-Counter `
+    '\Process(*)\ID Process',`
+    '\Process(*)\% Processor Time',`
+    '\Process(*)\Working Set - Private'`
+    -ea SilentlyContinue |
+  foreach CounterSamples |
+  where InstanceName -notin "_total","memory compression" |
+  group { $_.Path.Split("\\")[3] } |
+  foreach {
+    $procIndex = [array]::indexof($procTbl.ID, [Int32]$_.Group[0].CookedValue)
+    [pscustomobject]@{
+      Name = $_.Group[0].InstanceName;
+      ID = $_.Group[0].CookedValue;
+      User = $procTbl.UserName[$procIndex]
+      CPU = if($_.Group[0].InstanceName -eq "idle") {
+        $_.Group[1].CookedValue / $LogicalProcessors
+        } else {
+        $_.Group[1].CookedValue
+      };
+      Memory = $_.Group[2].CookedValue / 1KB;
+      Description = $procTbl.Description[$procIndex];
+      Title = $procTbl.MainWindowTitle[$procIndex];
+    }
+  } |
+  sort -des $SortCol |
+  select -f $Top @(
+    "Name", "ID", "User",
+    @{ n = "CPU"; e = { ("{0:N1}%" -f $_.CPU) } },
+    @{ n = "Memory"; e = { ("{0:N0} K" -f $_.Memory) } },
+    "Description", "Title"
+  ) | ft -a
+}
+
+myTopFunc -SortCol $SortCol -top $Top
+
+$totalRam = (Get-CimInstance Win32_PhysicalMemory | Measure-Object -Property capacity -Sum).Sum
+while($count -le 5) {
+    $date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $cpuTime = (Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue
+    $availMem = (Get-Counter '\Memory\Available MBytes').CounterSamples.CookedValue
+    $date + ' > CPU: ' + $cpuTime.ToString("#,0.000") + '%, Avail. Mem.: ' + $availMem.ToString("N0") + 'MB (' + (104857600 * $availMem / $totalRam).ToString("#,0.0") + '%)'
+    Start-Sleep -s 2
+    $count += 1
+}

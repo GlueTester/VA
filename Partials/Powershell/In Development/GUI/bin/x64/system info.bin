@@ -1,0 +1,91 @@
+PS C:\Users\VHALEXKingR1> systeminfo
+
+Host Name:                 LEX-LT110184
+OS Name:                   Microsoft Windows 10 Enterprise
+OS Version:                10.0.19045 N/A Build 19045
+OS Manufacturer:           Microsoft Corporation
+OS Configuration:          Member Workstation
+OS Build Type:             Multiprocessor Free
+Registered Owner:          Department of Veterans Affairs
+Registered Organization:   Department of Veterans Affairs
+Product ID:                00329-00000-00003-AA763
+Original Install Date:     7/6/2023, 11:29:08 AM
+System Boot Time:          4/30/2024, 12:19:30 AM
+System Manufacturer:       Dell Inc.
+System Model:              Latitude 5330
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: Intel64 Family 6 Model 154 Stepping 4 GenuineIntel ~1800 Mhz
+BIOS Version:              Dell Inc. 1.19.0, 12/15/2023
+Windows Directory:         C:\WINDOWS
+System Directory:          C:\WINDOWS\system32
+Boot Device:               \Device\HarddiskVolume2
+System Locale:             en-us;English (United States)
+Input Locale:              en-us;English (United States)
+Time Zone:                 (UTC-05:00) Eastern Time (US & Canada)
+Total Physical Memory:     16,069 MB
+Available Physical Memory: 2,698 MB
+Virtual Memory: Max Size:  27,845 MB
+Virtual Memory: Available: 10,043 MB
+Virtual Memory: In Use:    17,802 MB
+Page File Location(s):     C:\pagefile.sys
+Domain:                    v09.med.va.gov
+Logon Server:              \\VHALEX3DC1
+Hotfix(s):                 16 Hotfix(s) Installed.
+                           [01]: KB5036608
+                           [02]: KB5015684
+                           [03]: KB5026037
+                           [04]: KB5036892
+                           [05]: KB5014032
+                           [06]: KB5020372
+                           [07]: KB5026879
+                           [08]: KB5028318
+                           [09]: KB5028380
+                           [10]: KB5029709
+                           [11]: KB5031539
+                           [12]: KB5032392
+                           [13]: KB5032907
+                           [14]: KB5034224
+                           [15]: KB5036447
+                           [16]: KB5037018
+Network Card(s):           4 NIC(s) Installed.
+                           [01]: Intel(R) Wi-Fi 6E AX211 160MHz
+                                 Connection Name: Wi-Fi
+                                 DHCP Enabled:    Yes
+                                 DHCP Server:     10.74.99.13
+                                 IP address(es)
+                                 [01]: 10.74.116.165
+                                 [02]: fe80::6116:4c1f:6b61:7fa
+                           [02]: DisplayLink Network Adapter NCM
+                                 Connection Name: Ethernet
+                                 Status:          Media disconnected
+                           [03]: Bluetooth Device (Personal Area Network)
+                                 Connection Name: Bluetooth Network Connection
+                                 Status:          Media disconnected
+                           [04]: Cisco AnyConnect Secure Mobility Client Virtual Miniport Adapter for Windows x64
+                                 Connection Name: Ethernet 3
+                                 Status:          Hardware not present
+Hyper-V Requirements:      VM Monitor Mode Extensions: Yes
+                           Virtualization Enabled In Firmware: Yes
+                           Second Level Address Translation: Yes
+                           Data Execution Prevention Available: Yes
+PS C:\Users\VHALEXKingR1> systeminfo | sls "original"
+
+Original Install Date:     7/6/2023, 11:29:08 AM
+
+
+PS C:\Users\VHALEXKingR1>
+
+
+
+
+
+(Get-Item "C:\Windows\system.ini").CreationTime
+
+#Source: https://stackoverflow.com/questions/170617/how-do-i-find-the-install-time-and-date-of-windows
+Saturday, December 7, 2019 4:14:54 AM
+
+([WMI]'').ConvertToDateTime((Get-WmiObject Win32_OperatingSystem).InstallDate)
+Thursday, July 6, 2023 11:29:08 AM
+https://www.winhelponline.com/blog/find-windows-installation-date-time/?expand_article=1#powershell
+

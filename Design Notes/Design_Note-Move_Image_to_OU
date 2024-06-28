@@ -1,0 +1,43 @@
+Move Computers from OSD to prespective location
+#Purpose is to relocate images from OSD into the correct OU in AD
+
+
+#Locate the machines
+Search "OSD Staging,Test Lab,v09.med.va.gov" for Computer name starts with "LEX"
+
+#Ensure its not a test 
+For each found computer, ensure end of name "Does not contain" a letter
+
+#Double check
+Remove firt 5 characters (LEX-**) from begging. #Result remaining should just be EE
+Check that the remaing charcters are bewteen 88,514 - 199,000 #only range of EE think we are in)
+
+#Find info on Computer
+Is computer laptop or desktop?
+Does description contain [Somerset,Vet Center,CBOC Hazard,Berea,BCMA]? 
+If yes then  
+
+#Move to it Correct OU
+   #Laptops Move to	
+	LEX-LT move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Laptops/Windows 10/LT
+	LEX-MA move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Laptops/Windows 10/MA
+	LEX-SP move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Laptops/Windows 10/SP
+	If not one of these  send email to image person
+
+   #Dekstops move to
+	LEX-MA move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Laptops/Windows 10/MA
+	LEX-SP move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/SP
+	LEX-SD move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/SD
+	LEX-WS move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10
+
+  #Dell 7060 Wireless
+	v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/Dell 7060 Wireless
+  #CBOC
+	Berea move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/CBOC/Berea
+	Hazard  move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/CBOC/Hazard
+	Morehead move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/CBOC/Morehead
+	Somerset move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/CBOC/Somerset
+	Vet Center move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/CBOC/Vet Center
+
+  #BCMA
+	BCMA Contingency move to ->v09.med.va.gov/VISN09/Lexington (LEX)/Workstations/Windows 10/BCMA Contingency/LEX-WS90539

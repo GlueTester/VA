@@ -1,0 +1,19 @@
+Took python file (pytester1.py) from where saved and copied to PATHS
+C:\Users\vhalexkingr1\AppData\Local\Programs\Python\Python310
+C:\Users\vhalexkingr1\AppData\Local\Programs\Python\Python310\Scripts
+Opened IDEL Shell (think it came with python install) and typed
+# Please note this only worked one line at a time for the below command!
+
+```
+import py_compile
+py_compile.compile('pytester1.py')
+```
+
+Output: '__pycache__\\pytester1.cpython-310.pyc'
+Went to 
+C:\Users\vhalexkingr1\AppData\Local\Programs\Python\Python310\__pycache__
+and the file "pytester1.cpython-310.pyc" was created
+At this point i placed these instruction on github and the dir: __pycache__ was already created
+
+Source:
+https://www.csestack.org/convert-py-pyc-python-compile/
