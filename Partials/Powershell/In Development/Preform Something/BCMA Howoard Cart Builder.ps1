@@ -9,10 +9,10 @@ function EnableRemoting {
     
     } catch {
     
-        Write-Host "[NOTICE!]" -fore DarkYellow -nonewline; write-host "     - Remoting is NOT enabled on $NewBCMA, enableing now" -fore white
+        Write-Host "[NOTICE!]" -fore Yellow -nonewline; write-host "     - Remoting is NOT enabled on $NewBCMA, attempting to enable now" -fore white
         #Enable-PSRemoting -Force -SkipNetworkProfileCheck
         $SessionArgs = @{
-            ComputerName  = "LEX-WS90571"
+            ComputerName  = "$NewBCMA"
          
             SessionOption = New-CimSessionOption -Protocol Dcom
         }
@@ -36,6 +36,9 @@ function BMCASetup {
     Write-Host "[ INFO ]" -fore green -nonewline; Write-Host "      - Checking if Power Shell Remoting is enabled" -fore white
     EnableRemoting($NewBCMA)
     $Session = New-PSSession -ComputerName $NewBCMA
+    # Write-Host "[ FAIL ]" -fore RED -nonewline; write-host "     - Remoting can NOT be on $NewBCMA, you will have to wait and try agin" -fore white
+    
+    #$Session = New-PSSession -ComputerName $NewBCMA
 
     #Copying Files to MedCart
     try {
@@ -62,7 +65,7 @@ function BMCASetup {
     Write-Host "[ INFO ]" -fore green -nonewline; Write-Host "      - Restarting Computer" -fore white
     try{
         Restart-Computer -ComputerName $NewBCMA -Force
-        Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Cart is now setup!" -fore white
+        #Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Cart is now setup!" -fore white
     } catch{
         Write-Host "[FAILED]" -fore red -nonewline; write-host "      - Could not restart computer, please restart by hand" -fore white 
     }
@@ -71,7 +74,7 @@ function BMCASetup {
 
     #Installing MedDisplay after reboot
     Write-Host "[ INFO ]" -fore green -nonewline; write-host "      - Waiting For system to come online"
-
+    sleep 10
     do {
         Write-Host "[OFFLINE]" -fore Yellow -nonewline; write-host "      - Waiting For system to come online"
         sleep 2
@@ -83,10 +86,14 @@ function BMCASetup {
             Write-Host "[ONLINE]" -fore green -nonewline; write-host "      - System online"
             Write-Host "[ INFO ]" -fore green -nonewline; write-host "      - Installing MedDisplay" -fore white
             try {
+                $NewBCMA = Get-ADComputer -Filter "Name -like '*MA*$EE'" -SearchBase 'OU=Workstations,OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'| Select-Object -ExpandProperty Name
+                if ($NewBCMA) {
+                $Session = New-PSSession -ComputerName $NewBCMA
                 Invoke-Command -Session $Session -ScriptBlock {msiexec /i "C:\Temp\BCMA\Med Display 4.0.0.11\MedDisplay.msi" /qn}
                 Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - MedDisplay Insatlled" -fore white
+                }
             } catch{
-                Write-Host "[FAILED]" -fore red -nonewline; write-host "      - Could not install MedDisplay" -fore white  
+                Write-Host "[FAILED]" -fore red -nonewline; write-host "      - Could not install MedDisplay do it by hand and alert Russell" -fore white  
             }
         }
 
@@ -94,23 +101,52 @@ function BMCASetup {
 }
 
 
-Clear-Host
-$EE = Read-Host "Please enter EE of BCMA Cart to setup" #Grabs the name of the computer
-$NewBCMA = Get-ADComputer -Filter "Name -like '*MA*$EE'" -SearchBase 'OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov'| Select-Object -ExpandProperty Name
 
-#Move MA to correct OU
-if ($NewBCMA) {
-    Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Found $NewBCMA in OSD Staging" -fore white
-    Set-ADComputer -Identity "CN=$NewBCMA,OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov" -Description "BCMA Cart" #Set the description prior to the move
-    Move-ADObject -Identity "CN=$NewBCMA,OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov" -TargetPath "OU=Workstations,OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov"  #Move computer to correct OU 
-    BMCASetup($NewBCMA)
-}else {
-    Write-Host "[NOTICE!]" -fore DarkYellow -nonewline; Write-Host "     - New BCMA is not in OSD Staging, checking VISN09/Lexington (LEX)/Workstations" -fore white
-    $NewBCMA = Get-ADComputer -Filter "Name -like '*MA*$EE'" -SearchBase 'OU=Workstations,OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'| Select-Object -ExpandProperty Name
-    if ($NewBCMA) {
-        Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Found $NewBCMA in VISN09/Lexington (LEX)/Workstations/Windows 10/MA" -fore white
-        BMCASetup($NewBCMA)
-    }else {
-        Write-Host "[FAILED]" -fore red -nonewline; Write-Host "      - Cant find system please ensure EE is correct and it is in OSD Stageing or Win10 MA OU"-fore white
+do {
+    clear
+    Write-Host "Note: You must be able to scan from dBAt first!--"
+    Write-Host "1. BCMA Cart Builder"
+    Write-host "2. Quit"
+    $choice=Read-Host "Chose a number to continue"
+
+    switch ($choice)
+{
+ 1 {
+        
+
+
+        ###Main Body
+        Clear-Host
+        $EE = Read-Host "Please enter EE of BCMA Cart to setup" #Grabs the name of the computer
+        $NewBCMA = Get-ADComputer -Filter "Name -like '*MA*$EE'" -SearchBase 'OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov'| Select-Object -ExpandProperty Name
+
+        #Move MA to correct OU
+        if ($NewBCMA) {
+            $username = whoami
+            $LogDir = "\\v09.med.va.gov\lex\Service\IMS\+ Hardware Team\Scripts\Logs\"
+            $LogFile = $LogDir+"BCMABuildewr.log"
+            if ($username){
+            "$(get-date -format "yyyy-MM-dd HH:mm:ss"),$Env:UserName,Success | $NewBCMA" | out-file $LogFile -Append
+            }
+            else{
+            $username = $username.split('\')[1].ToUpper()
+            "$(get-date -format "yyyy-MM-dd HH:mm:ss"),$Env:UserName,Fail" | out-file $LogFile -Append
+            }
+            Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Found $NewBCMA in OSD Staging" -fore white
+            Set-ADComputer -Identity "CN=$NewBCMA,OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov" -Description "BCMA Cart" #Set the description prior to the move
+            Move-ADObject -Identity "CN=$NewBCMA,OU=OSD Staging,OU=Test Lab,DC=v09,DC=med,DC=va,DC=gov" -TargetPath "OU=Workstations,OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov"  #Move computer to correct OU 
+            BMCASetup($NewBCMA)
+        }else {
+            Write-Host "[NOTICE!]" -fore Yellow -nonewline; Write-Host "     - New BCMA is not in OSD Staging, checking VISN09/Lexington (LEX)/Workstations" -fore white
+            $NewBCMA = Get-ADComputer -Filter "Name -like '*MA*$EE'" -SearchBase 'OU=Workstations,OU=Lexington (LEX),OU=VISN09,DC=v09,DC=med,DC=va,DC=gov'| Select-Object -ExpandProperty Name
+            if ($NewBCMA) {
+                Write-Host "[  OK  ]" -fore green -nonewline; Write-Host "      - Found $NewBCMA in VISN09/Lexington (LEX)/Workstations/Windows 10/MA" -fore white
+                BMCASetup($NewBCMA)
+            }else {
+                Write-Host "[FAILED]" -fore red -nonewline; Write-Host "      - Cant find system please ensure EE is correct and it is in OSD Stageing or Win10 MA OU"-fore white
+                sleep 4
+            }
+        }
     }
 }
+} until ($choice -eq 2) 
