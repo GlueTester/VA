@@ -109,8 +109,9 @@ class App(customtkinter.CTk):
         #new below
     
         # create textbox
-        self.PCtextbox = customtkinter.CTkTextbox(self, width=250)
-        self.PCtextbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        #self.PCtextbox = customtkinter.CTkTextbox(self, width=250)
+        #self.PCtextbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        
         #switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=f"Extended Search")
         #switch.grid(row=1, column=0, padx=10, pady=(0, 20))
         #self.scrollable_frame_switches.append(switch)
@@ -176,7 +177,7 @@ class App(customtkinter.CTk):
         self.main_button_1.configure(state="enabled", text="Search")
 
         pingreply = GUI_functions.ping(Hostname)
-        switch.text=(f"{pingreply}")
+        #switch.text=(f"{pingreply}")
         #scrollable_frame.insert('end', f"{pingreply} \n")
         #self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Custom Search Options")
 
