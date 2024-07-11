@@ -38,4 +38,15 @@ def  EEtoHostname (EE):
             return (row["Name"])
         
 def ping(Hostname):
-    return not os.system('ping %s -n 1 > NUL' % (Hostname,) )
+    ping = subprocess.Popen(
+        ["ping", "-n", "1", Hostname],
+        #[f"ping -n 1 {Hostname} > /dev/null"],
+        stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE
+    )
+    out, error = ping.communicate()
+
+    newout = str(out).find("Received = 1")
+    return newout
+     
+    #return not os.system('ping %s -n 1 > NUL' % (Hostname,) )

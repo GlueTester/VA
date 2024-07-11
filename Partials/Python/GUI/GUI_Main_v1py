@@ -3,6 +3,7 @@ import tkinter.messagebox
 import customtkinter  #if not found - type  "pip3 install customtkinter"
 import GUI_functions
 import time
+import subprocess
 
 Version="0.2"
 Edition="Cherry Pie"
@@ -58,8 +59,6 @@ class App(customtkinter.CTk):
         self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE")
         self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sew")
         self.entry.bind("<Return>", self.return_pressed)
-        #self.switch_extended = customtkinter.CTkSwitch(self, text=f"Extended Search")
-        #self.switch_extended.grid(row=3, column=3 , padx=(20, 0), pady=(20, 10), sticky="nsew")
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
         self.main_button_1.grid(row=4, column=2, padx=(20, 20), pady=(20, 10), sticky="sew")
 
@@ -79,24 +78,16 @@ class App(customtkinter.CTk):
         self.tabview.tab("Printer").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Vista").grid_columnconfigure(1, weight=1)
 
-        self.HostanemeLabel = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
-        self.HostanemeLabel.grid(row=0, column=0, padx=(20,0), pady=(20,0))
+        self.HostnameLabel = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
+        self.HostnameLabel.grid(row=0, column=0, padx=(20,0), pady=(20,0))
         self.HostnameText = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="" , justify="left")
         self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(20,0), sticky="w")
+
+        self.OnlineLabel = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="Status: ", font=customtkinter.CTkFont(size=15))
+        self.OnlineLabel.grid(row=1, column=0, padx=(46,0), pady=(5,0))
+        self.OnlineText = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="" , justify="left")
+        self.OnlineText.grid(row=1, column=1, padx=(0,0), pady=(5,0), sticky="w")
         
-        #w = Text(self.tabview.tab("Computer"), height=1, borderwidth=0)
-        #w.insert(1.0, "Hello, world!")
-        #w.pack()
-
-        #w.configure(state="disabled")
-
-        # if tkinter is 8.5 or above you'll want the selection background
-        # to appear like it does when the widget is activated
-        # comment this out for older versions of Tkinter
-        #w.configure(inactiveselectbackground=w.cget("selectbackground"))
-
-
-
 
         #self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("Computer"), dynamic_resizing=False,
         #                                                values=["Value 1", "Value 2", "Value Long Long Long"])
@@ -198,23 +189,25 @@ class App(customtkinter.CTk):
 
 
     def searchclick(self):
-        self.main_button_1.configure(state="disabled", text="Searching")
         searchfieldinput = self.entry.get()
         Hostname = GUI_functions.EEtoHostname(searchfieldinput)
         if Hostname != "None":
             self.logbox.insert('end', f"Searched for {searchfieldinput} - Found: {Hostname} \n")
-            self.HostnameText.configure(text=Hostname)
-            #self.HostnameText.insert(text=Hostname)
-            
+            self.HostnameText.configure(text=Hostname)   
+
+            self.logbox.insert('end', f"Checking if {Hostname} is Online \n")
+            pingreply = GUI_functions.ping(Hostname)
+            if pingreply > 0:
+                pingreply = "Online"
+                self.OnlineText.configure(text=pingreply, text_color="green")
+                self.logbox.insert('end', f"{Hostname} is Online \n")
+            else:
+                self.OnlineText.configure(text="Offline", text_color="red")  
+                self.logbox.insert('end', f"{Hostname} is Offline \n") 
         else :
             self.logbox.insert('end', f"Searched for {searchfieldinput} - No Machine Found \n")
-        self.main_button_1.configure(state="enabled", text="Search")
-        #print(f"{idk}")
-        pingreply = GUI_functions.ping(Hostname)
         #self.sidebar_info.delete("0.0", "end")  # delete all text
-        
-        #self.sidebar_info.insert("0.0", f"{pingreply}")
-        #switch.text=(f"{pingreply}")
+      
 
         #scrollable_frame.insert('end', f"{pingreply} \n")
         #self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Custom Search Options")
