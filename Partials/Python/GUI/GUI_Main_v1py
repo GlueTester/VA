@@ -72,31 +72,45 @@ class App(customtkinter.CTk):
         self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
 
         # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=250)
+        self.tabview = customtkinter.CTkTabview(self, width=250,corner_radius=25)
         self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(10, 10), pady=(10, 0), sticky="nsew")
         self.tabview.add("Computer")
         self.tabview.add("User")
         self.tabview.add("Printer")
         self.tabview.add("Vista")
+        self.tabview.add("Network Hunt")
         self.tabview.tab("Computer").grid_columnconfigure(1, weight=1)  # configure grid of individual tabs
         self.tabview.tab("User").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Printer").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Vista").grid_columnconfigure(1, weight=1)
+        self.tabview.tab("Network Hunt").grid_columnconfigure(1, weight=1)
 
-        self.HostnameLabel = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
+
+
+        # create tabview2
+        self.tabview2 = customtkinter.CTkTabview(self.tabview.tab("Computer"), width=350,height=470,corner_radius=25)
+        self.tabview2.grid(row=0,rowspan=3, column=0,columnspan=3, padx=(10, 10), pady=(10, 0), sticky="nswe")
+        self.tabview2.add("Info")
+        self.tabview2.add("Software Install")
+        self.tabview2.add("Drivers Install")
+        self.tabview2.add("Control")
+        self.tabview2.tab("Info").grid_columnconfigure(1, weight=1)  # configure grid of individual tabs
+        self.tabview2.tab("Software Install").grid_columnconfigure(1, weight=1)
+        self.tabview2.tab("Drivers Install").grid_columnconfigure(1, weight=1)
+        self.tabview2.tab("Control").grid_columnconfigure(1, weight=1)
+       
+        self.HostnameLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
         self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0))
-        self.HostnameText = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="" , justify="left")
+        self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
         self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
 
-        self.OnlineLabel = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="Status: ", font=customtkinter.CTkFont(size=15))
+        self.OnlineLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Status: ", font=customtkinter.CTkFont(size=15))
         self.OnlineLabel.grid(row=1, column=0, padx=(25,0), pady=(0,0))
-        self.OnlineText = customtkinter.CTkLabel(self.tabview.tab("Computer"), text="" , justify="left")
+        self.OnlineText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
         self.OnlineText.grid(row=1, column=1, padx=(0,0), pady=(0,0), sticky="w")
 
-        self.extendedsearch_button = customtkinter.CTkButton(self.tabview.tab("Computer"), command=self.extendedsearch_button_event,fg_color="transparent")
+        self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
-
-        
 
         #self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("Computer"), dynamic_resizing=False,
         #                                                values=["Value 1", "Value 2", "Value Long Long Long"])
@@ -192,6 +206,8 @@ class App(customtkinter.CTk):
         customtkinter.set_widget_scaling(new_scaling_float)
 
     def sidebar_button_event(self):
+        self.tabview.tab("Computer")
+        self.switcher = customtkinter.CTkLabel(self.tabview.tab("Computer"))
         print("sidebar_button click")
 
     def extendedsearch_button_event(self):

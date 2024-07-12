@@ -2,7 +2,7 @@ import time
 import datetime
 import subprocess, sys
 import os
-from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv
+from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv   and pip3 install pypiwin32
 
 
 
