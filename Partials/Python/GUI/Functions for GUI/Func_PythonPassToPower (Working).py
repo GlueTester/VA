@@ -1,12 +1,12 @@
 import subprocess, sys
 import os
 import time
-from dotenv import load_dotenv, set_key
+from dotenv import load_dotenv, set_key #pip3 install python-dotenv
 
-envfile = "C:\\temp\\.env"
+envfile = "C:\\temp\\2.env"
 
 if not os.path.exists(envfile):   #create if not exist https://stackoverflow.com/questions/35807605/create-a-file-if-it-doesnt-exist
-    open(".env", "x") # creates the file
+    open(envfile, "x") # creates the file
 load_dotenv(envfile)
 
 #Linux : env_file_path.touch(mode=0o600, exist_ok=False) ## Create the file if it does not exist.
@@ -33,8 +33,8 @@ load_dotenv(envfile)
 #print (cwd)
     # Set the input variable
 
-PCName = "LEX-LT109869"
-set_key(dotenv_path="C:\\temp\\.env", key_to_set="python_var", value_to_set=PCName)
+PCName = "LEX-LT110184"
+set_key(dotenv_path=envfile, key_to_set="python_var", value_to_set=PCName)
 
 # Define the PowerShell script
 #Source: (PowerShell escape characters) https://stackoverflow.com/questions/58845990/how-to-get-powershell-to-output-variable-with-quotes-around-it 
@@ -42,8 +42,8 @@ set_key(dotenv_path="C:\\temp\\.env", key_to_set="python_var", value_to_set=PCNa
 # /
 ps_script2 = """
 $InputVar = ConvertTo-Json $env:python_var
-$powershell_var = ping $InputVar 
-echo "OutputVar =`'$powershell_var`' " | out-file -filepath "C:\\temp\.env" -append -Encoding ASCII
+$powershell_var = ping LEX-LT110184 
+echo "OutputVar =`'$powershell_var`' " | out-file -filepath "C:\\temp\\2.env" -append -Encoding ASCII
 """
 
 ps_script = """

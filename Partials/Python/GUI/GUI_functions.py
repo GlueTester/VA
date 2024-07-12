@@ -1,9 +1,9 @@
-#from PyQt5 import QtCore, QtGui, QtWidgets
 import time
-#from dotenv import load_dotenv, set_key
+import datetime
 import subprocess, sys
 import os
-#from Partials.Python.GUI.GUI_TechKing import *
+from dotenv import load_dotenv, set_key, get_key
+
 
 
 envfile = "C:\\temp\\.env"
@@ -31,7 +31,7 @@ def  EEtoHostname (EE):
     q.execute_query(
     attributes = ["SamAccountName", "distinguishedName", "Name" ,"description"],
     where_clause = f"objectClass = 'Computer' and Name = 'LEX*{EE}'",
-    base_dn = "OU=VISN09,DC=v09,DC=med,DC=va,DC=gov"
+    base_dn = "DC=v09,DC=med,DC=va,DC=gov"
     )
     for row in q.get_results():
         if EE in (row["Name"] ):
@@ -40,7 +40,6 @@ def  EEtoHostname (EE):
 def ping(Hostname):
     ping = subprocess.Popen(
         ["ping", "-n", "1", Hostname],
-        #[f"ping -n 1 {Hostname} > /dev/null"],
         stdout = subprocess.PIPE,
         stderr = subprocess.PIPE
     )
@@ -49,4 +48,36 @@ def ping(Hostname):
     newout = str(out).find("Received = 1")
     return newout
      
-    #return not os.system('ping %s -n 1 > NUL' % (Hostname,) )
+def powershellcmd(command):
+    now = datetime.datetime.now()
+    nowshort = now.strftime('%H%M%S')
+    envfile = f"C:\\temp\\.{nowshort}.env"
+
+    if not os.path.exists(envfile):   #create if not exist https://stackoverflow.com/questions/35807605/create-a-file-if-it-doesnt-exist
+        open(envfile, "x") # creates the file
+    load_dotenv(envfile)
+
+    set_key(dotenv_path=envfile, key_to_set="unique_run", value_to_set=nowshort)
+
+    ps_script = f"""
+    $InputVar = ConvertTo-Json $env:unique_run
+    $powershell_var = {command}
+    echo "OutputVar=`'$powershell_var`' " | out-file -filepath {envfile} -append -Encoding ASCII
+    """
+
+    # Run the PowerShell script with the input variable as an environment variable
+    #Sources - (https://stackoverflow.com/questions/5971312/how-to-set-environment-variables-in-python) , (https://stackoverflow.com/questions/21944895/running-powershell-script-within-python-script-how-to-make-python-print-the-pow) , (https://www.tutorialspoint.com/how-to-set-environment-variables-using-powershell) , (https://petri.com/powershell-set-environment-variable/#:~:text=To%20add%20an%20environment%20variable,the%20(%2B%3D)%20operator) , (https://stackoverflow.com/questions/30006722/os-environ-not-setting-environment-variables) , (https://stackoverflow.com/questions/5327495/list-all-environment-variables-from-the-command-line)
+    result = subprocess.run(["powershell.exe", "-Command", ps_script])#, capture_output=True, text = True)
+    
+    #Search envfile for new out and make a local variable
+    pscmdoutput = get_key(dotenv_path=envfile, key_to_get="OutputVar")
+    
+    #Clean up
+    os.remove(envfile)
+    return pscmdoutput
+
+    #USAGE 
+    # VARBILBE =  powershellcmd(POWERSHELL COMMAND)
+    # Examples
+    # pingout = powershellcmd("ping LEX-LT110184")
+    # print (f"{pingout}")
