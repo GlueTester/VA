@@ -124,12 +124,12 @@ class App(customtkinter.CTk):
 
         self.EnabledLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
         self.EnabledLabel.grid(row=0, column=0, padx=(10,0), pady=(175,0))
-        self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="enable holder", justify="left")
+        self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
         self.EnabledText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(175,0), sticky="w")
 
         self.UserLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Logged On: ", font=customtkinter.CTkFont(size=15))
         self.UserLabel.grid(row=0, column=0, padx=(0,0), pady=(220,0))
-        self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="user holder", justify="left")
+        self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
         self.UserText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(220,0), sticky="w")
 
        
