@@ -10,9 +10,11 @@ import os
 #import datetime
 #from dotenv import load_dotenv, set_key, get_key#pip3 install python-dotenv
 
-Version="0.2"
-Edition="Cherry Pie"
-Lastupdate= "11 JULY 2024"
+program_name = "EZAdmin (Working title)"
+version="0.2"
+edition="Cherry Pie"
+last_update= "11 JULY 2024"
+psfunctions = "S:\IMS\Software\Snakeking\psfunctions.ps1"
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -23,7 +25,7 @@ class App(customtkinter.CTk):
         super().__init__()
 
         # configure window
-        self.title(f"EZAdmin - {Version}")
+        self.title(f"{program_name} - {version}")
         self.geometry(f"{1100}x{800}")
 
         # configure grid layout (4x4)
@@ -199,10 +201,19 @@ class App(customtkinter.CTk):
         #GUI_functions.powershellcmd(f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}")
         #print(f"{pcadinfo}")
         #self.logbox.insert('end', f"{GUI_functions.powershellcmd(f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}")}  \n")
-        p = subprocess.Popen(["powershell.exe", f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}"], stdout=sys.stdout)
-        print(f"{p.communicate()}")
-        print(f"{p}")
-        self.logbox.insert('end', f"{p.communicate}  \n")
+        proc = subprocess.Popen(["powershell.exe", f"{psfunctions}; Get_PCInfo {Hostname}"])#, stdout=sys.stdout)
+        try:
+            outs, errs = proc.communicate(timeout=15)
+            print(f"Test1.1:{outs}")
+            print(f"Test1.1:{proc.sys.stdout}")
+        except TimeoutExpired:
+            proc.kill()
+            outs, errs = proc.communicate()
+        #p = subprocess.Popen(["powershell.exe", f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}"], stdout=sys.stdout)
+        print(f"Test1:{proc.communicate()}")
+        print(f"Test2:{proc}")
+        print(f"Test3:{outs}")
+        self.logbox.insert('end', f"{outs}  \n")
 
 
     def return_pressed(self, event):
