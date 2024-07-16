@@ -5,6 +5,8 @@ import os
 from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv   and pip3 install pypiwin32
 
 
+psfunctions = "S:\IMS\Software\Snakeking\psfunctions.ps1"
+
 
 envfile = "C:\\temp\\.env"
 
@@ -81,3 +83,6 @@ def powershellcmd(command):
     # Examples
     # pingout = powershellcmd("ping LEX-LT110184")
     # print (f"{pingout}")
+
+
+    

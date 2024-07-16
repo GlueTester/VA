@@ -107,10 +107,32 @@ class App(customtkinter.CTk):
         self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
 
         self.OnlineLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Status: ", font=customtkinter.CTkFont(size=15))
-        self.OnlineLabel.grid(row=1, column=0, padx=(25,0), pady=(0,0))
+        self.OnlineLabel.grid(row=0, column=0, padx=(25,0), pady=(45,0))
         self.OnlineText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
-        self.OnlineText.grid(row=1, column=1, padx=(0,0), pady=(0,0), sticky="w")
+        self.OnlineText.grid(row=0, column=1, padx=(0,0), pady=(45,0), sticky="w")
 
+       
+
+        self.OULabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="OU: ", font=customtkinter.CTkFont(size=15))
+        self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(100,0))
+         #Create scrollabel frame fro OUT lenght
+            #Source: https://github.com/TomSchimansky/CustomTkinter/wiki/CTkScrollableFrame
+        self.ou_scrollframe = customtkinter.CTkScrollableFrame(self.tabview2.tab("Info"), width=5, height=20,orientation="horizontal")
+        self.ou_scrollframe.grid(row=0, column=1, padx=(0,0), pady=(100,0),sticky="w")
+        self.OUtext = customtkinter.CTkLabel(self.ou_scrollframe, text="", justify="left")
+        self.OUtext.grid(row=0, column=0, columnspan=3, padx=(0,0), pady=(0,0), sticky="w")
+
+        self.EnabledLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
+        self.EnabledLabel.grid(row=0, column=0, padx=(10,0), pady=(175,0))
+        self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="enable holder", justify="left")
+        self.EnabledText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(175,0), sticky="w")
+
+        self.UserLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Logged On: ", font=customtkinter.CTkFont(size=15))
+        self.UserLabel.grid(row=0, column=0, padx=(0,0), pady=(220,0))
+        self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="user holder", justify="left")
+        self.UserText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(220,0), sticky="w")
+
+       
         self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
 
@@ -187,7 +209,7 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.set("100%")
         #self.optionmenu_1.set("CTkOptionmenu")
         #self.combobox_1.set("CTkComboBox")
-        #elf.slider_1.configure(command=self.progressbar_2.set)
+        #self.slider_1.configure(command=self.progressbar_2.set)
         #self.slider_2.configure(command=self.progressbar_3.set)
  
         
@@ -214,24 +236,28 @@ class App(customtkinter.CTk):
 
     def extendedsearch_button_event(self):
         self.extendedsearch_button.configure(state="disabled", fg_color="transparent",text="")
-        #GUI_functions.powershellcmd(f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}")
-        #print(f"{pcadinfo}")
-        #self.logbox.insert('end', f"{GUI_functions.powershellcmd(f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}")}  \n")
-        proc = subprocess.Popen(["powershell.exe", f"{psfunctions}; Get_PCInfo {Hostname}"])#, stdout=sys.stdout)
-        try:
-            outs, errs = proc.communicate(timeout=15)
-            print(f"Test1.1:{outs}")
-            print(f"Test1.1:{proc.sys.stdout}")
-        except TimeoutExpired:
-            proc.kill()
-            outs, errs = proc.communicate()
-        #p = subprocess.Popen(["powershell.exe", f"Import-Module S:\IMS\Software\Snakeking\psfunctions.ps1; Get_PCInfo {Hostname}"], stdout=sys.stdout)
-        print(f"Test1:{proc.communicate()}")
-        print(f"Test2:{proc}")
-        print(f"Test3:{outs}")
-        self.logbox.insert('end', f"{outs}  \n")
 
+        def ADsearch(Stat):
+            proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; Get_PCInfo {Hostname} {Stat}"], stdout=subprocess.PIPE)
+            try:
+                outs, errs = proc.communicate(timeout=15)
+                global out
+                out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
+                #EditLabel
+            except subprocess.TimeoutExpired:
+                proc.kill()
+                outs, errs = proc.communicate()   
+            #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
+        
+        ADsearch("DistinguishedName | Select-Object -ExpandProperty DistinguishedName")
+        self.OUtext.configure(text=out)
+        self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
 
+        ADsearch("Enabled | Select-Object -ExpandProperty Enabled")
+        if out: #if the out variabel has a value then is true
+            self.EnabledText.configure(text=out,text_color="green")
+        self.logbox.insert('end', f"{Hostname} Enabled: {out}  \n") #place info in Log box
+        
     def return_pressed(self, event):
         self.searchclick()
 
