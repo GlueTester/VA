@@ -108,8 +108,8 @@ class App(customtkinter.CTk):
 
         self.OnlineLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Status: ", font=customtkinter.CTkFont(size=15))
         self.OnlineLabel.grid(row=0, column=0, padx=(25,0), pady=(45,0))
-        self.OnlineText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
-        self.OnlineText.grid(row=0, column=1, padx=(0,0), pady=(45,0), sticky="w")
+        self.StatusText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
+        self.StatusText.grid(row=0, column=1, padx=(0,0), pady=(45,0), sticky="w")
 
        
 
@@ -235,7 +235,10 @@ class App(customtkinter.CTk):
         print("sidebar_button click")
 
     def extendedsearch_button_event(self):
+        
+        self.logbox.insert('end', f"{program_name} - Extended search started on {Hostname} \n")
         self.extendedsearch_button.configure(state="disabled", fg_color="transparent",text="")
+        self.logbox.see("end")
 
         def ADsearch(Stat):
             proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; Get_PCInfo {Hostname} {Stat}"], stdout=subprocess.PIPE)
@@ -251,36 +254,53 @@ class App(customtkinter.CTk):
         
         ADsearch("DistinguishedName | Select-Object -ExpandProperty DistinguishedName")
         self.OUtext.configure(text=out)
-        self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
+        self.logbox.insert('end', f"{Hostname} - AD Location: {out}  \n") #place info in Log box
+        self.logbox.see("end")
 
         ADsearch("Enabled | Select-Object -ExpandProperty Enabled")
-        if out: #if the out variabel has a value then is true
+        if out == "True": #if the out variabel has a value then is true
             self.EnabledText.configure(text=out,text_color="green")
-        self.logbox.insert('end', f"{Hostname} Enabled: {out}  \n") #place info in Log box
+        elif out == "False":
+            self.EnabledText.configure(text=out,text_color="red")
+        else:
+            self.EnabledText.configure(text="Not in AD",text_color="red")
+        self.logbox.insert('end', f"{Hostname}  - Enabled: {out}  \n") #place info in Log box
+        self.logbox.see("end")
         
     def return_pressed(self, event):
         self.searchclick()
+        self.logbox.see("end")
 
+    def clearthefield(self):
+        self.StatusText.configure(text="")
+        self.HostnameText.configure(text="")
+        self.OUtext.configure(text="")
+        self.StatusText.configure(text="")
+        self.EnabledText.configure(text="")
+        self.logbox.see("end")
 
     def searchclick(self):
+        self.clearthefield()
         searchfieldinput = self.entry.get()
         global Hostname
         Hostname = GUI_functions.EEtoHostname(searchfieldinput)
+        self.logbox.insert('end', f"{program_name} - Searched for EE {searchfieldinput} \n")
         if Hostname != "None":
-            self.logbox.insert('end', f"Searched for {searchfieldinput} - Found: {Hostname} \n")
+            self.logbox.insert('end', f"{program_name} - Found {Hostname} \n")
             self.HostnameText.configure(text=Hostname)   
 
-            self.logbox.insert('end', f"Checking if {Hostname} is Online \n")
+            self.logbox.insert('end', f"{program_name} - Checking if {Hostname} is Online \n")
             pingreply = GUI_functions.ping(Hostname)
             if pingreply > 0:
-                self.OnlineText.configure(text="Online", text_color="green")
-                self.logbox.insert('end', f"{Hostname} is Online \n") 
+                self.StatusText.configure(text="Online", text_color="green")
+                self.logbox.insert('end', f"{program_name} - {Hostname} is Online \n") 
                 self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
             else:
-                self.OnlineText.configure(text="Offline", text_color="red")  
-                self.logbox.insert('end', f"{Hostname} is Offline \n") 
+                self.StatusText.configure(text="Offline", text_color="red")  
+                self.logbox.insert('end', f"{program_name} - {Hostname} is Offline \n") 
         else :
-            self.logbox.insert('end', f"Searched for {searchfieldinput} - No Machine Found \n")
+            self.logbox.insert('end', f"{program_name} - No Machine Found matching {searchfieldinput} \n")
+        self.logbox.see("end")
         #self.sidebar_info.delete("0.0", "end")  # delete all text
 
 
