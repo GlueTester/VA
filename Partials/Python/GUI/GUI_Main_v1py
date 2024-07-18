@@ -46,10 +46,7 @@ class App(customtkinter.CTk):
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
         self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
         self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
-        #create info box in sidebar
-        #self.sidebar_info = customtkinter.CTkTextbox(self.sidebar_frame)
-        #self.sidebar_info.grid(row=4, column=0, padx=20, pady=10)
-        #self.sidebar_info.configure(state="disabled", fg_color="transparent") 
+
         #contue with witdges
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
@@ -74,8 +71,8 @@ class App(customtkinter.CTk):
         self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
 
         # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=250,corner_radius=25)
-        self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(10, 10), pady=(10, 0), sticky="nsew")
+        self.tabview = customtkinter.CTkTabview(self, width=250,height=470,corner_radius=25)
+        self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(0, 0), pady=(10, 0), sticky="nsew")
         self.tabview.add("Computer")
         self.tabview.add("User")
         self.tabview.add("Printer")
@@ -91,16 +88,19 @@ class App(customtkinter.CTk):
 
         # create tabview2
         self.tabview2 = customtkinter.CTkTabview(self.tabview.tab("Computer"), width=350,height=470,corner_radius=25)
-        self.tabview2.grid(row=0,rowspan=3, column=0,columnspan=3, padx=(10, 10), pady=(10, 0), sticky="nswe")
+        self.tabview2.grid(row=0,rowspan=3, column=0,columnspan=3, padx=(0, 0), pady=(0, 0), sticky="nwse")
         self.tabview2.add("Info")
         self.tabview2.add("Software Install")
-        self.tabview2.add("Drivers Install")
-        self.tabview2.add("Control")
+        self.tabview2.add("Specialty Tab")
+        self.tabview2.add("Magic Fix")
         self.tabview2.tab("Info").grid_columnconfigure(1, weight=1)  # configure grid of individual tabs
         self.tabview2.tab("Software Install").grid_columnconfigure(1, weight=1)
-        self.tabview2.tab("Drivers Install").grid_columnconfigure(1, weight=1)
-        self.tabview2.tab("Control").grid_columnconfigure(1, weight=1)
+        self.tabview2.tab("Specialty Tab").grid_columnconfigure(1, weight=1)
+        self.tabview2.tab("Magic Fix").grid_columnconfigure(1, weight=1)
        
+       
+        ####+++++++++++++++++++++++++++++++++++++++
+        #Info Tab
         self.HostnameLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
         self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0))
         self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
@@ -110,8 +110,6 @@ class App(customtkinter.CTk):
         self.OnlineLabel.grid(row=0, column=0, padx=(25,0), pady=(45,0))
         self.StatusText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
         self.StatusText.grid(row=0, column=1, padx=(0,0), pady=(45,0), sticky="w")
-
-       
 
         self.OULabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="OU: ", font=customtkinter.CTkFont(size=15))
         self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(100,0))
@@ -123,7 +121,7 @@ class App(customtkinter.CTk):
         self.OUtext.grid(row=0, column=0, columnspan=3, padx=(0,0), pady=(0,0), sticky="w")
 
         self.EnabledLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
-        self.EnabledLabel.grid(row=0, column=0, padx=(10,0), pady=(175,0))
+        self.EnabledLabel.grid(row=0, column=0, padx=(10,0), pady=(175,0), sticky="w")
         self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
         self.EnabledText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(175,0), sticky="w")
 
@@ -136,83 +134,59 @@ class App(customtkinter.CTk):
         self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
 
-        #self.optionmenu_1 = customtkinter.CTkOptionMenu(self.tabview.tab("Computer"), dynamic_resizing=False,
-        #                                                values=["Value 1", "Value 2", "Value Long Long Long"])
-        #self.optionmenu_1.grid(row=0, column=3, padx=20, pady=(20, 10))
-        #self.combobox_1 = customtkinter.CTkComboBox(self.tabview.tab("Computer"),
-        #                                            values=["Value 1", "Value 2", "Value Long....."])
-        #self.combobox_1.grid(row=1, column=2, padx=20, pady=(10, 10))
-        #self.string_input_button = customtkinter.CTkButton(self.tabview.tab("Computer"), text="Start Here",
-        #                                                   command=self.open_input_dialog_event)
-        #self.string_input_button.grid(row=2, column=1, padx=20, pady=(10, 10))
-        #self.label_tab_2 = customtkinter.CTkLabel(self.tabview.tab("User"), text="Computer on Tab 2")
-        #self.label_tab_2.grid(row=0, column=0, padx=20, pady=20)
 
-        # create slider and progressbar frame
-        #self.slider_progressbar_frame = customtkinter.CTkFrame(self, fg_color="transparent")
-        #self.slider_progressbar_frame.grid(row=1, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        #self.slider_progressbar_frame.grid_columnconfigure(0, weight=1)
-        #self.slider_progressbar_frame.grid_rowconfigure(4, weight=1)
-        #self.seg_button_1 = customtkinter.CTkSegmentedButton(self.slider_progressbar_frame)
-        #self.seg_button_1.grid(row=0, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        #self.progressbar_2 = customtkinter.CTkProgressBar(self.slider_progressbar_frame)
-        #self.progressbar_2.grid(row=2, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        #self.slider_1 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1, number_of_steps=4)
-        #self.slider_1.grid(row=3, column=0, padx=(20, 10), pady=(10, 10), sticky="ew")
-        #self.slider_2 = customtkinter.CTkSlider(self.slider_progressbar_frame, orientation="vertical")
-        #self.slider_2.grid(row=0, column=1, rowspan=5, padx=(10, 10), pady=(10, 10), sticky="ns")
-        #self.progressbar_3 = customtkinter.CTkProgressBar(self.slider_progressbar_frame, orientation="vertical")
-        #self.progressbar_3.grid(row=0, column=2, rowspan=5, padx=(10, 20), pady=(10, 10), sticky="ns")
+        ####+++++++++++++++++++++++++++++++++++++++
+        #Software Insatll Tab
+        #self.HostnameLabel2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
+        
+        self.Software_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Software: ", font=customtkinter.CTkFont(size=15))
+        self.Software_Combo1Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
+        self.Software_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["","Priv Plus","Vista Imaging"])
+        self.Software_Combo1menu_1.grid(row=0, column=1, padx=0, pady=(0, 0),sticky="w")
 
-        # create scrollable frame
-        #self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Custom Search Options")
-        #self.scrollable_frame.grid(row=1, column=3, padx=(0, 20), pady=(20, 0), sticky="nsew")
-        #self.scrollable_frame.grid_columnconfigure(0, weight=1)
-        #self.scrollable_frame_switches = []
-        
-        
-        
-        #new below
-    
-        # create textbox
-        #self.PCtextbox = customtkinter.CTkTextbox(self, width=250)
-        #self.PCtextbox.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
-        
-        #switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=f"Extended Search")
-        #switch.grid(row=1, column=0, padx=10, pady=(0, 20))
-        #self.scrollable_frame_switches.append(switch)
-        #for i in range(100):
-        #    switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=f"CTkSwitch {i}")
-        #    switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-        #    self.scrollable_frame_switches.append(switch)
+        self.Software_Combo2Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Drivers: ", font=customtkinter.CTkFont(size=15))
+        self.Software_Combo2Label.grid(row=0, column=0, padx=(0,0), pady=(60,0), sticky="E")
+        self.Software_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["", "Fujitsu Scanner", "Display Link"])
+        self.Software_Combo1menu_2.grid(row=0, column=1, padx=(0,0), pady=(60, 00), sticky="w")
 
-        # create checkbox and switch frame
-        #self.checkbox_slider_frame = customtkinter.CTkFrame(self)
-        #self.checkbox_slider_frame.grid(row=1, column=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        #self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        #self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
-        #self.checkbox_2 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        #self.checkbox_2.grid(row=2, column=0, pady=(20, 0), padx=20, sticky="n")
-        #self.checkbox_3 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
-        #self.checkbox_3.grid(row=3, column=0, pady=20, padx=20, sticky="n")
+
+
+        ####+++++++++++++++++++++++++++++++++++++++
+        #Specailty Insatll Tab
+        #self.HostnameLabel2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
+        
+        self.Specailty_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Specialty Tab"), text="Specailty Images: ", font=customtkinter.CTkFont(size=15))
+        self.Specailty_Combo1Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
+        self.Specailty_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Specialty Tab"), values=["","Audiology","BCMA Cart","EDIS Board","Lab","Manikin","PeriOp"])
+        self.Specailty_Combo1menu_1.grid(row=0, column=1, padx=0, pady=(0, 0),sticky="w")
+
+        self.Specailty_Combo2Label = customtkinter.CTkLabel(self.tabview2.tab("Specialty Tab"), text="Suboptions: ", font=customtkinter.CTkFont(size=15))
+        self.Specailty_Combo2Label.grid(row=0, column=0, padx=(0,0), pady=(60,0), sticky="E")
+        self.Specailty_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Specialty Tab"), values=["", "Fujitsu Scanner", "Display Link"], state= "disabled")
+        self.Specailty_Combo1menu_2.grid(row=0, column=1, padx=(0,0), pady=(60, 00), sticky="w")
+
+        self.SpecailtySearch = customtkinter.CTkButton(self.tabview2.tab("Specialty Tab"), text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.SpecailtySearchclick)
+        self.SpecailtySearch.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
+        #self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0))
+        #self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="" , justify="left")
+        #self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
+
+
+
 
         # set default values
         self.sidebar_button_1.configure(state="enabled", text="Button 1")
         self.sidebar_button_2.configure(state="enabled", text="Button 2")
         self.sidebar_button_3.configure(state="disabled", text="Disabled Button")
         self.extendedsearch_button.configure(state="disabled", text="")
-        #self.checkbox_3.configure(state="disabled")
-        #self.checkbox_1.select()
-        #self.scrollable_frame_switches[0].select()
-        #self.scrollable_frame_switches[4].select()
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
-        #self.optionmenu_1.set("CTkOptionmenu")
-        #self.combobox_1.set("CTkComboBox")
-        #self.slider_1.configure(command=self.progressbar_2.set)
-        #self.slider_2.configure(command=self.progressbar_3.set)
- 
-        
+
+
+        #self.sub_tabmenu._segmented_button._buttons_dict[old_tabname].configure(text=new_tabname)
+        self.tabview2._segmented_button._buttons_dict["Magic Fix"].configure(state="disabled")
+        #self.tabview2.tab.configure("Magic Fix").grid_columnconfigure(1, weight=1)
+     
         
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
         #self.seg_button_1.configure(values=["CTkSegmentedButton", "Value 2", "Value 3"])
@@ -303,6 +277,9 @@ class App(customtkinter.CTk):
         self.logbox.see("end")
         #self.sidebar_info.delete("0.0", "end")  # delete all text
 
+    def SpecailtySearchclick(self):
+        spec_image_type = self.Specailty_Combo1menu_1.get()
+        print(f"Specailty search pressed, I see you selected: {spec_image_type}")
 
 if __name__ == "__main__":
     app = App()
