@@ -13,7 +13,8 @@ program_name = "EZAdmin (Working title)"
 version="0.2"
 edition="Cherry Pie"
 last_update= "11 JULY 2024"
-psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"

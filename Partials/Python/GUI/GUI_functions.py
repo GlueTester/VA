@@ -7,8 +7,8 @@ import socket
 #import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
 
 
-psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
-
+#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
 
 envfile = "C:\\temp\\.env"
 
