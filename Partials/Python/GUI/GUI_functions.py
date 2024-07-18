@@ -97,7 +97,7 @@ def powershellcmd(command):
 
 def VlanLookup(pingreply):
     print(F"Ping reply: {pingreply}")
-    proc = subprocess.Popen(["powershell.exe -Verb RunAs", f"Import-Module {psfunctions}; vlanname({pingreply})"], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; vlanname({pingreply})"], stdout=subprocess.PIPE)
     try:
         outs, errs = proc.communicate(timeout=15)
         print(F"Befor decode: {outs}")
