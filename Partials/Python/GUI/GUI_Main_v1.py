@@ -2,7 +2,6 @@ import tkinter
 import tkinter.messagebox
 import customtkinter  #if not found - type  "pip3 install customtkinter"
 import GUI_functions
-#import "GUI_psfunctions.ps1"
 import time
 import subprocess, sys
 import os
@@ -14,7 +13,7 @@ program_name = "EZAdmin (Working title)"
 version="0.2"
 edition="Cherry Pie"
 last_update= "11 JULY 2024"
-psfunctions = "S:\IMS\Software\Snakeking\psfunctions.ps1"
+psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -102,35 +101,44 @@ class App(customtkinter.CTk):
         ####+++++++++++++++++++++++++++++++++++++++
         #Info Tab
         self.HostnameLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
-        self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0))
+        self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="ne")
         self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
-        self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
+        self.HostnameText.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="nw")
 
         self.OnlineLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Status: ", font=customtkinter.CTkFont(size=15))
-        self.OnlineLabel.grid(row=0, column=0, padx=(25,0), pady=(45,0))
+        self.OnlineLabel.grid(row=0, column=0, padx=(0,0), pady=(25,0),sticky="ne")
         self.StatusText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
-        self.StatusText.grid(row=0, column=1, padx=(0,0), pady=(45,0), sticky="w")
+        self.StatusText.grid(row=0, column=1, padx=(0,0), pady=(25,0), sticky="nw")
+        
+        self.IPLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="IP: ", font=customtkinter.CTkFont(size=15))
+        self.IPLabel.grid(row=0, column=0, padx=(0,0), pady=(50,0), sticky="ne")
+        self.IPText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
+        self.IPText.grid(row=0, column=1, padx=(0,0), pady=(50,0), sticky="nw")
+        
+        self.LocationLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Location: ", font=customtkinter.CTkFont(size=15))
+        self.LocationLabel.grid(row=0, column=0, padx=(0,0), pady=(75,0), sticky="ne")
+        self.LocationText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
+        self.LocationText.grid(row=0, column=1, padx=(0,0), pady=(75,0), sticky="nw")
 
+        self.EnabledLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
+        self.EnabledLabel.grid(row=0, column=0, padx=(0,0), pady=(100,0), sticky="ne")
+        self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
+        self.EnabledText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(100,0), sticky="nw")
+
+        self.UserLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Logged On: ", font=customtkinter.CTkFont(size=15))
+        self.UserLabel.grid(row=0, column=0, padx=(0,0), pady=(125,0),sticky="ne")
+        self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
+        self.UserText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(125,0), sticky="nw")
+       
         self.OULabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="OU: ", font=customtkinter.CTkFont(size=15))
-        self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(100,0))
+        self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(150,0))
          #Create scrollabel frame fro OUT lenght
             #Source: https://github.com/TomSchimansky/CustomTkinter/wiki/CTkScrollableFrame
         self.ou_scrollframe = customtkinter.CTkScrollableFrame(self.tabview2.tab("Info"), width=5, height=20,orientation="horizontal")
-        self.ou_scrollframe.grid(row=0, column=1, padx=(0,0), pady=(100,0),sticky="w")
+        self.ou_scrollframe.grid(row=0, column=1, padx=(0,0), pady=(150,0),sticky="nw")
         self.OUtext = customtkinter.CTkLabel(self.ou_scrollframe, text="", justify="left")
-        self.OUtext.grid(row=0, column=0, columnspan=3, padx=(0,0), pady=(0,0), sticky="w")
+        self.OUtext.grid(row=0, column=0, columnspan=3, padx=(0,0), pady=(0,0), sticky="nw")
 
-        self.EnabledLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
-        self.EnabledLabel.grid(row=0, column=0, padx=(10,0), pady=(175,0), sticky="w")
-        self.EnabledText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
-        self.EnabledText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(175,0), sticky="w")
-
-        self.UserLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Logged On: ", font=customtkinter.CTkFont(size=15))
-        self.UserLabel.grid(row=0, column=0, padx=(0,0), pady=(220,0))
-        self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
-        self.UserText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(220,0), sticky="w")
-
-       
         self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
 
@@ -259,19 +267,40 @@ class App(customtkinter.CTk):
         global Hostname
         Hostname = GUI_functions.EEtoHostname(searchfieldinput)
         self.logbox.insert('end', f"{program_name} - Searched for EE {searchfieldinput} \n")
-        if Hostname != "None":
+        if Hostname != None:
             self.logbox.insert('end', f"{program_name} - Found {Hostname} \n")
             self.HostnameText.configure(text=Hostname)   
 
             self.logbox.insert('end', f"{program_name} - Checking if {Hostname} is Online \n")
             pingreply = GUI_functions.ping(Hostname)
-            if pingreply > 0:
+            #self.logbox.insert('end', f"Got - {pingreply} \n")
+            
+            if pingreply == "Offline":
+                self.StatusText.configure(text="Offline", text_color="red")  
+                self.logbox.insert('end', f"{program_name} - {Hostname} is Offline \n")
+
+            else:
                 self.StatusText.configure(text="Online", text_color="green")
                 self.logbox.insert('end', f"{program_name} - {Hostname} is Online \n") 
                 self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
-            else:
-                self.StatusText.configure(text="Offline", text_color="red")  
-                self.logbox.insert('end', f"{program_name} - {Hostname} is Offline \n") 
+                self.IPText.configure(text=pingreply)
+                
+                 
+            #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
+            
+            vlanname = GUI_functions.VlanLookup(pingreply)
+            self.logbox.insert('end', f"{program_name} - vlan name:{vlanname} \n")
+                #self.LocationText.configure(text=vlanname)
+                
+            
+            #if pingreply[0] > 0:
+            #    self.StatusText.configure(text="Online", text_color="green")
+            #    self.logbox.insert('end', f"{program_name} - {Hostname} is Online \n") 
+            #    self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
+            #else:
+            #    self.StatusText.configure(text="Offline", text_color="red")  
+            #    self.logbox.insert('end', f"{program_name} - {Hostname} is Offline \n") 
+            #    self.logbox.insert('end', f"Got - {pingreply} \n")
         else :
             self.logbox.insert('end', f"{program_name} - No Machine Found matching {searchfieldinput} \n")
         self.logbox.see("end")

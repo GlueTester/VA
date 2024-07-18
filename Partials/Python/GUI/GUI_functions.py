@@ -3,9 +3,11 @@ import datetime
 import subprocess, sys
 import os
 from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv   and pip3 install pypiwin32
+import socket
+#import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
 
 
-psfunctions = "S:\IMS\Software\Snakeking\psfunctions.ps1"
+psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
 
 
 envfile = "C:\\temp\\.env"
@@ -39,17 +41,26 @@ def  EEtoHostname (EE):
         if EE in (row["Name"] ):
             return (row["Name"])
         
-def ping(Hostname):
+def pingback(Hostname):
     ping = subprocess.Popen(
-        ["ping", "-n", "1", Hostname],
+        ["ping", "-n", "1", "-4", Hostname],
+        #["ping", "-n", "1", Hostname],
         stdout = subprocess.PIPE,
         stderr = subprocess.PIPE
     )
     out, error = ping.communicate()
 
-    newout = str(out).find("Received = 1")
-    return newout
+    packsrecieved = str(out).find("Received = 1")
+    ip = (socket.gethostbyname(Hostname))
+    return (packsrecieved ,ip)
      
+def ping(Hostname):
+    ip = (socket.gethostbyname(Hostname))
+    if ip:
+        return (ip)
+    else:
+        return ("Offline")
+
 def powershellcmd(command):
     now = datetime.datetime.now()
     nowshort = now.strftime('%H%M%S')
@@ -84,5 +95,18 @@ def powershellcmd(command):
     # pingout = powershellcmd("ping LEX-LT110184")
     # print (f"{pingout}")
 
-
-    
+def VlanLookup(pingreply):
+    print(F"Ping reply: {pingreply}")
+    proc = subprocess.Popen(["powershell.exe -Verb RunAs", f"Import-Module {psfunctions}; vlanname({pingreply})"], stdout=subprocess.PIPE)
+    try:
+        outs, errs = proc.communicate(timeout=15)
+        print(F"Befor decode: {outs}")
+        out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
+        print(F"After decode: {out}")
+        vlanresult = out
+        print(F"{vlanresult}")
+        return vlanresult
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()  
+    print(F"Outside try: {outs}")
