@@ -7,8 +7,8 @@ import socket
 #import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
 
 
-#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
-psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
+psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+#psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
 
 envfile = "C:\\temp\\.env"
 
@@ -27,6 +27,22 @@ def Quick_Search_clicked(self):
     ResolveName(EE)
 
 '''
+def has_admin():
+    #import os
+    if os.name == 'nt':
+        try:
+            #Source: https://stackoverflow.com/questions/2946746/python-checking-if-a-user-has-administrator-privileges
+            # only windows users with admin privileges can read the C:\windows\temp
+            temp = os.listdir(os.sep.join([os.environ.get('SystemRoot','C:\\windows'),'temp']))
+        except:
+            return (os.environ['USERNAME'],False)
+        else:
+            return (os.environ['USERNAME'],True)
+    else:
+        if 'SUDO_USER' in os.environ and os.geteuid() == 0:
+            return (os.environ['SUDO_USER'],True)
+        else:
+            return (os.environ['USERNAME'],False)
 
 def  EEtoHostname (EE):
     import pyad.adquery # pip3 install pyad

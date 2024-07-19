@@ -13,14 +13,16 @@ program_name = "EZAdmin (Working title)"
 version="0.2"
 edition="Cherry Pie"
 last_update= "11 JULY 2024"
-#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
-psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
+psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+#psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 
 class App(customtkinter.CTk):
+    admincheck = GUI_functions.has_admin()
+    #print(f"{admincheck[1]}")
     def __init__(self):
         super().__init__()
 
@@ -157,7 +159,9 @@ class App(customtkinter.CTk):
         self.Software_Combo2Label.grid(row=0, column=0, padx=(0,0), pady=(60,0), sticky="E")
         self.Software_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["", "Fujitsu Scanner", "Display Link"])
         self.Software_Combo1menu_2.grid(row=0, column=1, padx=(0,0), pady=(60, 00), sticky="w")
-
+        self.Software_Search = customtkinter.CTkButton(self.tabview2.tab("Software Install"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Software_Deploy_Event)
+        self.Software_Search.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
+       
 
 
         ####+++++++++++++++++++++++++++++++++++++++
@@ -174,7 +178,7 @@ class App(customtkinter.CTk):
         self.Specailty_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Specialty Tab"), values=["", "Fujitsu Scanner", "Display Link"], state= "disabled")
         self.Specailty_Combo1menu_2.grid(row=0, column=1, padx=(0,0), pady=(60, 00), sticky="w")
 
-        self.SpecailtySearch = customtkinter.CTkButton(self.tabview2.tab("Specialty Tab"), text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.SpecailtySearchclick)
+        self.SpecailtySearch = customtkinter.CTkButton(self.tabview2.tab("Specialty Tab"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Specailty_Deploy_Event)
         self.SpecailtySearch.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
         #self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0))
         #self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="" , justify="left")
@@ -190,6 +194,9 @@ class App(customtkinter.CTk):
         self.extendedsearch_button.configure(state="disabled", text="")
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
+        if self.admincheck[1] == False: 
+            self.SpecailtySearch.configure(state="disabled", text="Run as admin to enable")
+            self.Software_Search.configure(state="disabled", text="Run as admin to enable")
 
 
         #self.sub_tabmenu._segmented_button._buttons_dict[old_tabname].configure(text=new_tabname)
@@ -288,10 +295,15 @@ class App(customtkinter.CTk):
                 
                  
             #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
-            
-            vlanname = GUI_functions.VlanLookup(pingreply)
-            self.logbox.insert('end', f"{program_name} - vlan name:{vlanname} \n")
-                #self.LocationText.configure(text=vlanname)
+            if self.admincheck: #ensure admincheck has a value
+                if self.admincheck == True: #ensure vaule is True aka admin
+                    vlanname = GUI_functions.VlanLookup(pingreply)
+                    self.logbox.insert('end', f"{program_name} - vlan name:{vlanname} \n")
+                    self.LocationText.configure(text={vlanname})
+                elif self.admincheck[1] == False:
+                    self.logbox.insert('end', f"{program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
+                    self.LocationText.configure(text="Run as admin to enable")
+            #self.LocationText.configure(text=vlanname)
                 
             
             #if pingreply[0] > 0:
@@ -307,9 +319,21 @@ class App(customtkinter.CTk):
         self.logbox.see("end")
         #self.sidebar_info.delete("0.0", "end")  # delete all text
 
-    def SpecailtySearchclick(self):
+    def Specailty_Deploy_Event(self):
         spec_image_type = self.Specailty_Combo1menu_1.get()
-        print(f"Specailty search pressed, I see you selected: {spec_image_type}")
+        if spec_image_type or spec_image_type==0:
+            self.logbox.insert('end', f"Specailty search pressed, I see you selected:{spec_image_type} \n")
+        else:
+            self.logbox.insert('end', f"Please select a image type to start: \n")
+        self.logbox.see("end")
+    
+    def Software_Deploy_Event(self):
+        softwarename = self.Software_Combo1menu_1.get()
+        if softwarename or softwarename==0:
+            self.logbox.insert('end', f"Specailty search pressed, I see you selected:{softwarename} \n")
+        else:
+            self.logbox.insert('end', f"Please select a software to start: \n")
+        self.logbox.see("end")
 
 if __name__ == "__main__":
     app = App()
