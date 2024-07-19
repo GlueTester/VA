@@ -7,8 +7,9 @@ import socket
 #import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
 
 
-psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
+#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
 #psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
+psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'
 
 envfile = "C:\\temp\\.env"
 
@@ -126,3 +127,12 @@ def VlanLookup(pingreply):
         proc.kill()
         outs, errs = proc.communicate()  
     print(F"Outside try: {outs}")
+
+def callback(self, P):
+    if str.isdigit(P) or str(P) == "":
+        return True
+    else:
+        return False
+    
+
+VlanLookup("10.74.116.243")
