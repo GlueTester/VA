@@ -6,11 +6,7 @@ from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv   a
 import socket
 #import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
 
-
-#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
-#psfunctions = "C:\\Users\OITLEXKINGR10\\Desktop\\GIT\\VA\\Partials\\Python\\GUI\psfunctions.ps1"
 psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'
-
 envfile = "C:\\temp\\.env"
 
 #if not os.path.exists(envfile):   #create if not exist https://stackoverflow.com/questions/35807605/create-a-file-if-it-doesnt-exist
@@ -72,9 +68,14 @@ def pingback(Hostname):
     return (packsrecieved ,ip)
      
 def ping(Hostname):
-    ip = (socket.gethostbyname(Hostname))
-    if ip:
-        return (ip)
+    try: 
+        ip = (socket.gethostbyname(Hostname))
+        if ip.startswith ("10.74"):
+            return (ip)
+        elif ip == "Offline":
+            return "Offline"
+    except:
+        return "Cant get IP of machine"
     else:
         return ("Offline")
 
@@ -114,19 +115,21 @@ def powershellcmd(command):
 
 def VlanLookup(pingreply):
     #print(F"Ping reply: {pingreply}")
-    proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; vlanname({pingreply})"], stdout=subprocess.PIPE)
+    proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)}"], stdout=subprocess.PIPE)
+    #print (["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)} "])
     try:
         outs, errs = proc.communicate(timeout=15)
-        print(F"Befor decode: {outs}")
+        #print(F"Befor decode: {outs}")
+        #print(F"pre decode still {str(pingreply)}")
         out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
-        print(F"After decode: {out}")
+       # print(F"After decode: {out}")
         vlanresult = out
-        print(F"{vlanresult}")
+        #print(F"results: {vlanresult}")
         return vlanresult
     except subprocess.TimeoutExpired:
         proc.kill()
         outs, errs = proc.communicate()  
-    print(F"Outside try: {outs}")
+    #print(F"Outside try: {outs}")
 
 def callback(self, P):
     if str.isdigit(P) or str(P) == "":
@@ -136,3 +139,17 @@ def callback(self, P):
     
 
 #VlanLookup("10.74.116.243")
+#print(ping("LEX-LT110184"))
+
+
+#def ping(Hostname):
+#    ip = (socket.gethostbyname(Hostname))
+#    try: 
+#        if ip.startswith ("10.74"):
+##            return (ip)
+ #       elif ip == "Offline":
+#            return "Offline"
+#    except:
+#        return "Cant get IP of machine"
+#    else:
+#        return ("Offline")

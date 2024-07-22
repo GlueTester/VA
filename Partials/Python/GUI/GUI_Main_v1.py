@@ -1,6 +1,6 @@
 import tkinter
 import tkinter.messagebox
-import customtkinter  #if not found - type  "pip3 install customtkinter"
+import customtkinter
 import GUI_functions
 import time
 import subprocess, sys
@@ -8,13 +8,16 @@ import os
 from datetime import datetime
 import socket #to get Hostname of machine running program
 
-#from dotenv import load_dotenv, set_key, get_key#pip3 install python-dotenv
+#prereq installs
+    #pip3 install python-dotenv
+    #pip3 install customtkinter
+    #pip3 install python-dotenv
+    #pip3 install pypiwin32
 
 program_name = "EZAdmin (Working title)"
 version="0.2"
 edition="Cherry Pie"
 last_update= "19 JULY 2024"
-#psfunctions = 'C:\\Users\\VHALEXKingR1\\GIT\\VA\\Partials\\Python\\GUI\\psfunctions.ps1'
 psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
 now = datetime.now()
 timestamp = now.strftime('%H:%M:%S')
@@ -148,7 +151,6 @@ class App(customtkinter.CTk):
         self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
 
-
         #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Software Insatll Tab    
         self.Software_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Software: ", font=customtkinter.CTkFont(size=15))
@@ -163,8 +165,6 @@ class App(customtkinter.CTk):
         self.Software_Search = customtkinter.CTkButton(self.tabview2.tab("Software Install"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Software_Deploy_Event)
         self.Software_Search.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
        
-
-
         #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Specailty Tab        
         self.Specailty_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Specialty Tab"), text="Specailty Images: ", font=customtkinter.CTkFont(size=15))
@@ -179,7 +179,6 @@ class App(customtkinter.CTk):
 
         self.SpecailtySearch = customtkinter.CTkButton(self.tabview2.tab("Specialty Tab"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Specailty_Deploy_Event)
         self.SpecailtySearch.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
-
 
 
         # set default values
@@ -218,6 +217,8 @@ class App(customtkinter.CTk):
         
         self.logbox.insert('end', f"{timestamp}    {program_name} - Extended search started on {Hostname} \n")
         self.extendedsearch_button.configure(state="disabled", fg_color="transparent",text="")
+        self.main_button_1.configure(state="disabled",text="Please wait...")
+        self.update() #force update of gui
         self.logbox.see("end")
 
         def ADsearch(Stat):
@@ -230,7 +231,7 @@ class App(customtkinter.CTk):
             except subprocess.TimeoutExpired:
                 proc.kill()
                 outs, errs = proc.communicate()   
-            #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
+
         
         ADsearch("DistinguishedName | Select-Object -ExpandProperty DistinguishedName")
         self.OUtext.configure(text=out)
@@ -247,17 +248,38 @@ class App(customtkinter.CTk):
         self.logbox.insert('end', f"{timestamp}    {Hostname}  - Enabled: {out}  \n") #place info in Log box
         self.logbox.see("end")
         
+
+        if self.admincheck[1] == True: #ensure vaule is True aka admin
+            pcrunningscript = socket.gethostname()
+            if  pcrunningscript == jumpserver:
+                vlanname = GUI_functions.VlanLookup(self.IPText.cget("text"))
+                self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
+                self.LocationText.configure(text=vlanname)
+            else:
+                self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
+        elif self.admincheck[1] == False:
+            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
+            self.LocationText.configure(text="Run as admin to enable")
+        else:
+            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
+        
+        #reenable search button
+        self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
+
     def return_pressed(self, event):
         self.searchclick()
         self.logbox.see("end")
 
     def clearthefield(self):
-        self.StatusText.configure(text="")
+        self.StatusText.configure(text="", text_color="black")
         self.HostnameText.configure(text="")
-        self.OUtext.configure(text="")
-        self.StatusText.configure(text="")
-        self.EnabledText.configure(text="")
+        self.OUtext.configure(text="Press Extended Search to populate")
+        self.StatusText.configure(text="Press Extended Search to populate")
+        self.IPText.configure(text="")
+        self.EnabledText.configure(text="Press Extended Search to populate", text_color="black")
+        self.LocationText.configure(text="Press Extended Search to populate")
         self.logbox.see("end")
+        
 
     def searchclick(self):
         self.clearthefield()
@@ -274,9 +296,12 @@ class App(customtkinter.CTk):
 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
                 pingreply = GUI_functions.ping(Hostname)
-                #self.logbox.insert('end', f"{timestamp}|"Got - {pingreply} \n")
                 
                 if pingreply == "Offline":
+                    self.StatusText.configure(text="Offline", text_color="red")  
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+
+                elif (pingreply == "Cant get IP of machine"):
                     self.StatusText.configure(text="Offline", text_color="red")  
                     self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
 
@@ -284,28 +309,12 @@ class App(customtkinter.CTk):
                     self.StatusText.configure(text="Online", text_color="green")
                     self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
                     self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
-                    self.IPText.configure(text=pingreply)
-                    
-                    
-                #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
-                if self.admincheck: #ensure admincheck has a value
-                    if self.admincheck == True: #ensure vaule is True aka admin
-                        pcrunningscript = socket.gethostname()
-                        if  pcrunningscript == jumpserver:
-                            vlanname = GUI_functions.VlanLookup(pingreply)
-                            self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
-                            self.LocationText.configure(text={vlanname})
-                        else:
-                            self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
-                    elif self.admincheck[1] == False:
-                        self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
-                        self.LocationText.configure(text="Run as admin to enable")
-                #self.LocationText.configure(text=vlanname)
+                    self.IPText.configure(text=pingreply)                  
+
             else :
                 self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
         
             self.logbox.see("end")
-            #self.sidebar_info.delete("0.0", "end")  # delete all text
 
     def Specailty_Deploy_Event(self):
         spec_image_type = self.Specailty_Combo1menu_1.get()
