@@ -7,6 +7,7 @@ import subprocess, sys
 import os
 from datetime import datetime
 import socket #to get Hostname of machine running program
+import ctypes 
 
 #prereq installs
     #pip3 install python-dotenv
@@ -14,17 +15,29 @@ import socket #to get Hostname of machine running program
     #pip3 install python-dotenv
     #pip3 install pypiwin32
 
-program_name = "EZAdmin (Working title)"
-version="0.2"
+program_name = "Admin Tool (Working title)"
+version="0.2 Alpha"
 edition="Cherry Pie"
-last_update= "19 JULY 2024"
+last_update= "22 JULY 2024"
 psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
 now = datetime.now()
 timestamp = now.strftime('%H:%M:%S')
 jumpserver = "VHALEXMUL01A"
 
+
+deadday= 20240805   #YYYYMMDD
+currentday = now.strftime('%Y%m%d')
+if int(currentday) > int(deadday):
+    ctypes.windll.user32.MessageBoxW(0, "Please upgrade so that the cows may live?", "Upgrade this old piece of $#%@", 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
+    #print("Gone baby gone")
+    exit()
+
+
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
+
+print(currentday)
+
 
 class App(customtkinter.CTk):
     admincheck = GUI_functions.has_admin()
@@ -73,6 +86,7 @@ class App(customtkinter.CTk):
         self.entry.bind("<Return>", self.return_pressed)
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
         self.main_button_1.grid(row=4, column=2, padx=(20, 20), pady=(20, 10), sticky="sew")
+       
 
         # create Logbox
         self.logbox = customtkinter.CTkTextbox(self, width=250, height=150)
@@ -195,7 +209,9 @@ class App(customtkinter.CTk):
         self.tabview2._segmented_button._buttons_dict["Magic Fix"].configure(state="disabled")     
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
 
-        
+        #Set as main focus
+        self.main_button_1.focus_set() 
+        self.update() 
 
     def open_input_dialog_event(self):
         dialog = customtkinter.CTkInputDialog(text="Type in an EE number:", title="EE number to search for")
@@ -273,16 +289,18 @@ class App(customtkinter.CTk):
     def clearthefield(self):
         self.StatusText.configure(text="", text_color="black")
         self.HostnameText.configure(text="")
-        self.OUtext.configure(text="Press Extended Search to populate")
-        self.StatusText.configure(text="Press Extended Search to populate")
+        self.OUtext.configure(text="Extended Option")
+        self.StatusText.configure(text="Extended Option")
         self.IPText.configure(text="")
-        self.EnabledText.configure(text="Press Extended Search to populate", text_color="black")
-        self.LocationText.configure(text="Press Extended Search to populate")
+        self.EnabledText.configure(text="Extended Option", text_color="black")
+        self.LocationText.configure(text="Extended Option")
         self.logbox.see("end")
         
 
     def searchclick(self):
+        self.main_button_1.configure(state="disabled",text="Please wait...")
         self.clearthefield()
+        self.update()
         global Hostname
         searchfieldinput = self.entry.get()
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
@@ -314,7 +332,9 @@ class App(customtkinter.CTk):
             else :
                 self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
         
-            self.logbox.see("end")
+        self.logbox.see("end")
+        #reenable search button
+        self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
 
     def Specailty_Deploy_Event(self):
         spec_image_type = self.Specailty_Combo1menu_1.get()
