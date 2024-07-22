@@ -6,6 +6,8 @@ import time
 import subprocess, sys
 import os
 from datetime import datetime
+import socket #to get Hostname of machine running program
+
 #from dotenv import load_dotenv, set_key, get_key#pip3 install python-dotenv
 
 program_name = "EZAdmin (Working title)"
@@ -16,6 +18,7 @@ last_update= "19 JULY 2024"
 psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
 now = datetime.now()
 timestamp = now.strftime('%H:%M:%S')
+jumpserver = "VHALEXMUL01A"
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -287,9 +290,13 @@ class App(customtkinter.CTk):
                 #self.logbox.insert('end', f"{Hostname} location: {out}  \n") #place info in Log box
                 if self.admincheck: #ensure admincheck has a value
                     if self.admincheck == True: #ensure vaule is True aka admin
-                        vlanname = GUI_functions.VlanLookup(pingreply)
-                        self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
-                        self.LocationText.configure(text={vlanname})
+                        pcrunningscript = socket.gethostname()
+                        if  pcrunningscript == jumpserver:
+                            vlanname = GUI_functions.VlanLookup(pingreply)
+                            self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
+                            self.LocationText.configure(text={vlanname})
+                        else:
+                            self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
                     elif self.admincheck[1] == False:
                         self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
                         self.LocationText.configure(text="Run as admin to enable")

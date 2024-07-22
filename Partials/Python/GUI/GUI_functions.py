@@ -113,7 +113,7 @@ def powershellcmd(command):
     # print (f"{pingout}")
 
 def VlanLookup(pingreply):
-    print(F"Ping reply: {pingreply}")
+    #print(F"Ping reply: {pingreply}")
     proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; vlanname({pingreply})"], stdout=subprocess.PIPE)
     try:
         outs, errs = proc.communicate(timeout=15)
@@ -135,4 +135,4 @@ def callback(self, P):
         return False
     
 
-VlanLookup("10.74.116.243")
+#VlanLookup("10.74.116.243")
