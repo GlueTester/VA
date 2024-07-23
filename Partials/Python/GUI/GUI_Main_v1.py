@@ -237,7 +237,7 @@ class App(customtkinter.CTk):
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
 
         #Set as main focus
-        self.main_button_1.focus_set() 
+        #self.entry.focus_force() 
         self.update() 
 
     def open_input_dialog_event(self):
@@ -380,9 +380,10 @@ class App(customtkinter.CTk):
                     self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {program_name} as:{searchfieldinput} \n")
+                #set(self.tabview.tab("User"))
             else:
-                self.logbox.insert('end', f"{timestamp}    {program_name} - I DONT knwo what this is - {program_name} ----{searchfieldinput} \n")
-                self.logbox.insert('end', f"{timestamp}    {program_name} - type: {type(searchfieldinput)} \n")
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
+                #self.logbox.insert('end', f"{timestamp}    {program_name} - type: {type(searchfieldinput)} \n")
 
         
 
