@@ -131,12 +131,36 @@ def VlanLookup(pingreply):
         outs, errs = proc.communicate()  
     #print(F"Outside try: {outs}")
 
+def powercmd(psdef):
+    #print(F"Ping reply: {psdef}")
+    proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; {psdef}"], stdout=subprocess.PIPE)
+    #print (["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)} "])
+    try:
+        outs, errs = proc.communicate(timeout=15)
+        #print(F"Befor decode: {outs}")
+        #print(F"pre decode still {str(pingreply)}")
+        out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
+       # print(F"After decode: {out}")
+        vlanresult = out
+        #print(F"results: {vlanresult}")
+        return vlanresult
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        outs, errs = proc.communicate()  
+    #print(F"Outside try: {outs}")
+
 def callback(self, P):
     if str.isdigit(P) or str(P) == "":
         return True
     else:
         return False
     
+def MotherBoardSerial(Hostname):
+    serial = powercmd(f"MBserial('{Hostname}')")
+    #self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")
+    return serial
+
+
 
 #VlanLookup("10.74.116.243")
 #print(ping("LEX-LT110184"))

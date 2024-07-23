@@ -8,6 +8,8 @@ import os
 from datetime import datetime
 import socket #to get Hostname of machine running program
 import ctypes 
+import glob #for file search
+import numbers #to see if numbers
 
 #prereq installs
     #pip3 install python-dotenv
@@ -23,6 +25,7 @@ psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.p
 now = datetime.now()
 timestamp = now.strftime('%H:%M:%S')
 jumpserver = "VHALEXMUL01A"
+logoffdir = "//v09.med.va.gov/LEX/Workgroup/Public/LogonScripts/Lognoff$"
 
 
 deadday= 20240805   #YYYYMMDD
@@ -36,7 +39,7 @@ if int(currentday) > int(deadday):
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-print(currentday)
+#print(currentday)
 
 
 class App(customtkinter.CTk):
@@ -81,18 +84,18 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE",validate='all', validatecommand=(GUI_functions.callback, '%P'))
-        self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sew")
+        self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE",validate='all', validatecommand=(GUI_functions.callback, '%P'),width=250)
+        self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sw")
         self.entry.bind("<Return>", self.return_pressed)
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
-        self.main_button_1.grid(row=4, column=2, padx=(20, 20), pady=(20, 10), sticky="sew")
+        self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw") #colum was 2
        
 
         # create Logbox
         self.logbox = customtkinter.CTkTextbox(self, width=250, height=150)
         self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
 
-        # create tabview
+        # create tabview for main
         self.tabview = customtkinter.CTkTabview(self, width=250,height=470,corner_radius=25)
         self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(0, 0), pady=(10, 0), sticky="nsew")
         self.tabview.add("Computer")
@@ -108,7 +111,7 @@ class App(customtkinter.CTk):
 
 
 
-        # create tabview2
+        # create tabview2 for Computers tab
         self.tabview2 = customtkinter.CTkTabview(self.tabview.tab("Computer"), width=350,height=470,corner_radius=25)
         self.tabview2.grid(row=0,rowspan=3, column=0,columnspan=3, padx=(0, 0), pady=(0, 0), sticky="nwse")
         self.tabview2.add("Info")
@@ -153,17 +156,40 @@ class App(customtkinter.CTk):
         self.UserText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
         self.UserText.grid(row=0, column=1, columnspan=3, padx=(0,0), pady=(125,0), sticky="nw")
        
-        self.OULabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="OU: ", font=customtkinter.CTkFont(size=15))
-        self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(150,0))
+        
         
         #Create scrollabel frame fro OUT lenght      #Source: https://github.com/TomSchimansky/CustomTkinter/wiki/CTkScrollableFrame
-        self.ou_scrollframe = customtkinter.CTkScrollableFrame(self.tabview2.tab("Info"), width=5, height=20,orientation="horizontal")
-        self.ou_scrollframe.grid(row=0, column=1, padx=(0,0), pady=(150,0),sticky="nw")
+        self.ou_scrollframe = customtkinter.CTkScrollableFrame(self.tabview2.tab("Info"), height=20,orientation="horizontal")
+        self.ou_scrollframe.grid(row=0, column=1, padx=(0,0), pady=(144,0),sticky="nw")
+        self.OULabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="OU: ")#, font=customtkinter.CTkFont(size=15))
+        self.OULabel.grid(row=0, column=0, padx=(45,0), pady=(150,0),sticky="ne")
         self.OUtext = customtkinter.CTkLabel(self.ou_scrollframe, text="", justify="left")
         self.OUtext.grid(row=0, column=0, columnspan=3, padx=(0,0), pady=(0,0), sticky="nw")
 
-        self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
-        self.extendedsearch_button.grid(row=3, column=3, padx=(0,0), pady=(0,0))
+        self.MBSerialLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="System Serial: ", font=customtkinter.CTkFont(size=15))
+        self.MBSerialLabel.grid(row=0, column=0, padx=(0,0), pady=(180,0), sticky="ne")
+        self.MBSerialText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
+        self.MBSerialText.grid(row=0, column=1, padx=(0,0), pady=(180,0), sticky="nw")
+
+
+        self.extendedsearch_button = customtkinter.CTkButton(master=self, command=self.extendedsearch_button_event,fg_color="transparent")
+        self.extendedsearch_button.grid(row=4, column=1, padx=(450,20), pady=(20,10), sticky="sw")
+
+       # self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE",validate='all', validatecommand=(GUI_functions.callback, '%P'),width=250)
+       # self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sw")
+       # self.entry.bind("<Return>", self.return_pressed)
+       # self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
+       # self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw") #colum was 2
+
+        #self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
+        #self.extendedsearch_button.grid(row=0, column=3, padx=(0,0), pady=(0,0))
+
+        #self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
+        #self.main_button_1.grid(row=4, column=2, padx=(20, 20), pady=(20, 10), sticky="sew")
+
+        self.logstats_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.logstats_button_event,fg_color="transparent")
+        self.logstats_button.grid(row=0, column=3, padx=(0,0), pady=(45,0))
+
 
         #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Software Insatll Tab    
@@ -200,6 +226,7 @@ class App(customtkinter.CTk):
         self.sidebar_button_2.configure(state="enabled", text="Button 2")
         self.sidebar_button_3.configure(state="disabled", text="Disabled Button")
         self.extendedsearch_button.configure(state="disabled", text="")
+        self.logstats_button.configure(state="disabled", text="")
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
         
@@ -271,6 +298,7 @@ class App(customtkinter.CTk):
                 vlanname = GUI_functions.VlanLookup(self.IPText.cget("text"))
                 self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
                 self.LocationText.configure(text=vlanname)
+                self.MBSerialText.configure(text=GUI_functions.MotherBoardSerial(Hostname))
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
         elif self.admincheck[1] == False:
@@ -281,6 +309,10 @@ class App(customtkinter.CTk):
         
         #reenable search button
         self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
+
+    def logstats_button_event(self):
+        machinelogpath = (f"{logoffdir}/machinestats/{Hostname}.log")
+        subprocess.Popen(["notepad", machinelogpath])   
 
     def return_pressed(self, event):
         self.searchclick()
@@ -294,43 +326,65 @@ class App(customtkinter.CTk):
         self.IPText.configure(text="")
         self.EnabledText.configure(text="Extended Option", text_color="black")
         self.LocationText.configure(text="Extended Option")
+        self.MBSerialText.configure(text="")
         self.logbox.see("end")
+       
         
 
     def searchclick(self):
         self.main_button_1.configure(state="disabled",text="Please wait...")
         self.clearthefield()
         self.update()
-        global Hostname
+        global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - Please input an EE to start \n")
         else:
-            Hostname = GUI_functions.EEtoHostname(searchfieldinput)
-            self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for EE {searchfieldinput} \n")
-            if Hostname or Hostname == 0:
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
-                self.HostnameText.configure(text=Hostname)   
+            if (isinstance(searchfieldinput, numbers.Number)):
+                Hostname = GUI_functions.EEtoHostname(searchfieldinput)
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for EE {searchfieldinput} \n")
+                if Hostname or Hostname == 0:
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
+                    self.HostnameText.configure(text=Hostname)   
 
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
-                pingreply = GUI_functions.ping(Hostname)
-                
-                if pingreply == "Offline":
-                    self.StatusText.configure(text="Offline", text_color="red")  
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
+                    pingreply = GUI_functions.ping(Hostname)
+                    
+                    if pingreply == "Offline":
+                        self.StatusText.configure(text="Offline", text_color="red")  
+                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
 
-                elif (pingreply == "Cant get IP of machine"):
-                    self.StatusText.configure(text="Offline", text_color="red")  
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+                    elif (pingreply == "Cant get IP of machine"):
+                        self.StatusText.configure(text="Offline", text_color="red")  
+                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
 
-                else:
-                    self.StatusText.configure(text="Online", text_color="green")
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
-                    self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
-                    self.IPText.configure(text=pingreply)                  
+                    else:
+                        self.StatusText.configure(text="Online", text_color="green")
+                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
+                        self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
+                        self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
+                        self.IPText.configure(text=pingreply)
+                        if self.admincheck[1] == True: #ensure vaule is True aka admin
+                            pcrunningscript = socket.gethostname()
+                            if  pcrunningscript == jumpserver:
+                                self.MBSerialText.configure(text=GUI_functions.MotherBoardSerial(Hostname))
+                        elif self.admincheck[1] == False:
+                            self.MBSerialText.configure(text="Run as admin to enable")
+                        else:
+                            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")                  
+                    
+                    #GUI_functions.MotherBoardSerial(Hostname)
+                    
 
-            else :
-                self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+                else :
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+            elif ("VHA" in searchfieldinput):
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {program_name} as:{searchfieldinput} \n")
+            else:
+                self.logbox.insert('end', f"{timestamp}    {program_name} - I DONT knwo what this is - {program_name} ----{searchfieldinput} \n")
+
+        
+
         
         self.logbox.see("end")
         #reenable search button
@@ -351,6 +405,11 @@ class App(customtkinter.CTk):
         else:
             self.logbox.insert('end', f"{timestamp}    Please select a software to start: \n")
         self.logbox.see("end")
+
+    #def MotherBoardSerial():
+    #    serial = GUI_functions.powercmd(f"MBserial('{Hostname}')")
+    #    self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")
+    #    return serial
 
 #if '_PYIBoot_SPLASH' in os.environ and importlib.util.find_spec("pyi_splash"):  #Source https://stackoverflow.com/questions/48315785/pyinstaller-adding-splash-screen-or-visual-feedback-during-file-extraction
 #    import pyi_splash
