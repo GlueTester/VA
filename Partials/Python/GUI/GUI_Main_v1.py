@@ -340,7 +340,7 @@ class App(customtkinter.CTk):
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - Please input an EE to start \n")
         else:
-            if (isinstance(searchfieldinput, numbers.Number)):
+            if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
                 Hostname = GUI_functions.EEtoHostname(searchfieldinput)
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for EE {searchfieldinput} \n")
                 if Hostname or Hostname == 0:
@@ -378,10 +378,11 @@ class App(customtkinter.CTk):
 
                 else :
                     self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
-            elif ("VHA" in searchfieldinput):
+            elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {program_name} as:{searchfieldinput} \n")
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - I DONT knwo what this is - {program_name} ----{searchfieldinput} \n")
+                self.logbox.insert('end', f"{timestamp}    {program_name} - type: {type(searchfieldinput)} \n")
 
         
 
