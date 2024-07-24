@@ -1,0 +1,81 @@
+{
+"GUIParms": 
+    [
+
+    {
+
+       "program_name": "Admin Tool (Working title)",
+
+       "version": "0.2 Alpha",
+
+       "edition": "Cherry Pie",
+
+       "last_update": "22 JULY 2024",
+
+       "psfunctions": "//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1",
+
+       "jumpserver": "VHALEXMUL01A",
+
+       "logoffdir": "//v09.med.va.gov/LEX/Workgroup/Public/LogonScripts/Lognoff$",
+
+       "last_update": "22 JULY 2024",
+
+       "deadday": 20240805
+
+    }
+    ],
+
+"Software": 
+    [
+
+    {
+
+       "Name": "ParEx",
+
+       "state": "enabled",
+
+       "Version": "1.0",
+
+       "path": "vhalex.med.gov-somedir-parexc1.ps1"
+
+    },
+    {
+
+        "Name": "ClintaComp",
+ 
+        "state": "enabled",
+ 
+        "Version": "1.3",
+ 
+        "path": "vhalex.med.gov-somedir-parexc1.ps1"
+ 
+     }
+    ],
+
+"Drivers":
+    [
+    
+    {
+       "Name": "Smart Card",
+    
+       "state": "enabled",
+
+       "Version": "2.0",
+
+       "path": "vhalex.med.gov-somedir-smartcard2.ps1"
+
+    },
+
+    {
+        "Name": "Partiortp D60",
+     
+        "state": "enabled",
+ 
+        "Version": "1.0",
+ 
+        "path": "vhalex.med.gov-somedir-patriotd60.ps1"
+ 
+     }
+    
+    ]
+}

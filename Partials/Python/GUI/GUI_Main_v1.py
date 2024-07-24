@@ -10,6 +10,7 @@ import socket #to get Hostname of machine running program
 import ctypes 
 import glob #for file search
 import numbers #to see if numbers
+import json
 
 #prereq installs
     #pip3 install python-dotenv
@@ -17,18 +18,54 @@ import numbers #to see if numbers
     #pip3 install python-dotenv
     #pip3 install pypiwin32
 
-program_name = "Admin Tool (Working title)"
-version="0.2 Alpha"
-edition="Cherry Pie"
-last_update= "22 JULY 2024"
-psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
+
+f = open('var.json')
+data = json.load(f)
+
+gui_vars=(data["GUIParms"])
+gui_key = []
+gui_variable_keys = []
+gui_variables_values = []
+
+for key in gui_vars[0]:
+    gui_key.append(key)
+
+for k in gui_key:
+    for parms in data['GUIParms']:
+        parms = (parms[k])
+        b = (f'{parms}')
+        gui_variable_keys.append(k)
+        gui_variables_values.append(b)
+
+#software_vars=(data["Software"])
+#software_key = []
+#software_variable_keys = []
+#software_variables_values = []
+#    with open("test.json") as jsonFile:
+#        data = json.load(jsonFile)
+#        jsonData = data["emp_details"]
+#        for x in jsonData:
+#            keys = x.keys()
+#            print(keys)
+#            values = x.values()
+#            print(values)
+
+
+f.close()
+
+program_name = gui_variables_values[0]
+version = gui_variables_values[1]
+edition = gui_variables_values[2]
+last_update =gui_variables_values[3]
+psfunctions = gui_variables_values[4]  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
 now = datetime.now()
 timestamp = now.strftime('%H:%M:%S')
-jumpserver = "VHALEXMUL01A"
-logoffdir = "//v09.med.va.gov/LEX/Workgroup/Public/LogonScripts/Lognoff$"
+jumpserver = gui_variables_values[5]
+logoffdir = gui_variables_values[6]
+deadday = gui_variables_values[7] 
 
+#print (software_vars)
 
-deadday= 20240805   #YYYYMMDD
 currentday = now.strftime('%Y%m%d')
 if int(currentday) > int(deadday):
     ctypes.windll.user32.MessageBoxW(0, "Please upgrade so that the cows may live?", "Upgrade this old piece of $#%@", 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
@@ -38,9 +75,6 @@ if int(currentday) > int(deadday):
 
 customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
-
-#print(currentday)
-
 
 class App(customtkinter.CTk):
     admincheck = GUI_functions.has_admin()
@@ -198,6 +232,10 @@ class App(customtkinter.CTk):
         self.Software_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["","Priv Plus","Vista Imaging"])
         self.Software_Combo1menu_1.grid(row=0, column=1, padx=0, pady=(0, 0),sticky="w")
 
+
+
+
+
         self.Software_Combo2Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Drivers: ", font=customtkinter.CTkFont(size=15))
         self.Software_Combo2Label.grid(row=0, column=0, padx=(0,0), pady=(60,0), sticky="E")
         self.Software_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["", "Fujitsu Scanner", "Display Link"])
@@ -341,6 +379,8 @@ class App(customtkinter.CTk):
             self.logbox.insert('end', f"{timestamp}    {program_name} - Please input an EE to start \n")
         else:
             if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
+                self.tabview.set("Computer")#change active tab to the "user tab"
+                self.update()
                 Hostname = GUI_functions.EEtoHostname(searchfieldinput)
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for EE {searchfieldinput} \n")
                 if Hostname or Hostname == 0:
@@ -371,19 +411,18 @@ class App(customtkinter.CTk):
                         elif self.admincheck[1] == False:
                             self.MBSerialText.configure(text="Run as admin to enable")
                         else:
-                            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")                  
-                    
-                    #GUI_functions.MotherBoardSerial(Hostname)
+                            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
                     
 
                 else :
                     self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+
+            #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
-                #set(self.tabview.tab("User"))
+                self.tabview.set("User")#change active tab to the "user tab"
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
-                #self.logbox.insert('end', f"{timestamp}    {program_name} - type: {type(searchfieldinput)} \n")
 
         
 

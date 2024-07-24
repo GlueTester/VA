@@ -161,7 +161,6 @@ def MotherBoardSerial(Hostname):
     return serial
 
 
-
 #VlanLookup("10.74.116.243")
 #print(ping("LEX-LT110184"))
 
