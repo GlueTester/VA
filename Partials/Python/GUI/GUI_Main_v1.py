@@ -379,7 +379,7 @@ class App(customtkinter.CTk):
                 else :
                     self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {program_name} as:{searchfieldinput} \n")
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
                 #set(self.tabview.tab("User"))
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
