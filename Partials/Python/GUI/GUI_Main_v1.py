@@ -19,15 +19,29 @@ import json
     #pip3 install pypiwin32
 
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
-software_variables = []
+
+#Create empty arrays
+software_variables, drivers_variables, software_names, driver_names = ([] for i in range(4))
 
 with open(var_json) as jsonFile:
     data = json.load(jsonFile)
     for result in data['GUIParms']:
-        a = json.dumps( result, indent=4)#, separators=("", " = "))
+        a = json.dumps( result, indent=4)
         gui_variables = json.loads(a)
     for result in data['Software']:
         software_variables.append(result)
+    for result in data['Drivers']:
+        drivers_variables.append(result)
+
+    #Extract all enabled software titles from json and place into new array for combobox
+for i in range(len(software_variables)):
+    if software_variables[i]["State"] == "enabled":
+        software_names.append(software_variables[i]["Name"])
+
+    #Extract all enabled driver titles from json and place into new array for combobox
+for i in range(len(drivers_variables)):
+    if drivers_variables[i]["State"] == "enabled":
+        driver_names.append(drivers_variables[i]["Name"])
 
 
 
@@ -44,7 +58,9 @@ deadday = gui_variables["dead_day"]
 currentday = eval(gui_variables["currentday"])
 program_version = 0.2
 
-#print (software_variables[0]["Name"])
+
+
+
 #Ensure the version being ran is the current one, currently only by date
 if eval(gui_variables["date_compare"]):
     ctypes.windll.user32.MessageBoxW(0, gui_variables["old_date_title"], gui_variables["old_date_message"], 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
@@ -202,16 +218,13 @@ class App(customtkinter.CTk):
         #Software Insatll Tab    
         self.Software_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Software: ", font=customtkinter.CTkFont(size=15))
         self.Software_Combo1Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
-        self.Software_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["","Priv Plus","Vista Imaging"])
+        self.Software_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values = software_names)
         self.Software_Combo1menu_1.grid(row=0, column=1, padx=0, pady=(0, 0),sticky="w")
-
-
-
 
 
         self.Software_Combo2Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Drivers: ", font=customtkinter.CTkFont(size=15))
         self.Software_Combo2Label.grid(row=0, column=0, padx=(0,0), pady=(60,0), sticky="E")
-        self.Software_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values=["", "Fujitsu Scanner", "Display Link"])
+        self.Software_Combo1menu_2 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values = driver_names)
         self.Software_Combo1menu_2.grid(row=0, column=1, padx=(0,0), pady=(60, 00), sticky="w")
         self.Software_Search = customtkinter.CTkButton(self.tabview2.tab("Software Install"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Software_Deploy_Event)
         self.Software_Search.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
