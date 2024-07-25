@@ -1,5 +1,5 @@
 import tkinter
-import tkinter.messagebox
+#import tkinter.messagebox
 import customtkinter
 import GUI_functions
 import time
@@ -18,13 +18,17 @@ import json
     #pip3 install python-dotenv
     #pip3 install pypiwin32
 
+var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
+software_variables = []
 
-with open("var.json") as jsonFile:
+with open(var_json) as jsonFile:
     data = json.load(jsonFile)
     for result in data['GUIParms']:
         a = json.dumps( result, indent=4)#, separators=("", " = "))
         gui_variables = json.loads(a)
-        #print(type(json_object))
+    for result in data['Software']:
+        software_variables.append(result)
+
 
 
 program_name = gui_variables["program_name"]
@@ -40,6 +44,7 @@ deadday = gui_variables["dead_day"]
 currentday = eval(gui_variables["currentday"])
 program_version = 0.2
 
+#print (software_variables[0]["Name"])
 #Ensure the version being ran is the current one, currently only by date
 if eval(gui_variables["date_compare"]):
     ctypes.windll.user32.MessageBoxW(0, gui_variables["old_date_title"], gui_variables["old_date_message"], 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
