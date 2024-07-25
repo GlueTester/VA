@@ -19,57 +19,34 @@ import json
     #pip3 install pypiwin32
 
 
-f = open('var.json')
-data = json.load(f)
-
-gui_vars=(data["GUIParms"])
-gui_key = []
-gui_variable_keys = []
-gui_variables_values = []
-
-for key in gui_vars[0]:
-    gui_key.append(key)
-
-for k in gui_key:
-    for parms in data['GUIParms']:
-        parms = (parms[k])
-        b = (f'{parms}')
-        gui_variable_keys.append(k)
-        gui_variables_values.append(b)
-
-#software_vars=(data["Software"])
-#software_key = []
-#software_variable_keys = []
-#software_variables_values = []
-#    with open("test.json") as jsonFile:
-#        data = json.load(jsonFile)
-#        jsonData = data["emp_details"]
-#        for x in jsonData:
-#            keys = x.keys()
-#            print(keys)
-#            values = x.values()
-#            print(values)
+with open("var.json") as jsonFile:
+    data = json.load(jsonFile)
+    for result in data['GUIParms']:
+        a = json.dumps( result, indent=4)#, separators=("", " = "))
+        gui_variables = json.loads(a)
+        #print(type(json_object))
 
 
-f.close()
+program_name = gui_variables["program_name"]
+current_version = gui_variables["current_version"]
+edition = gui_variables["edition"]
+last_update = gui_variables["last_update"]
+psfunctions = gui_variables["psfunctions"] #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
+now = eval(gui_variables["now"])
+timestamp = eval(gui_variables["timestamp"])
+jumpserver = gui_variables["jumpserver"]
+logoffdir = gui_variables["log_off_dir"]
+deadday = gui_variables["dead_day"]
+currentday = eval(gui_variables["currentday"])
+program_version = 0.2
 
-program_name = gui_variables_values[0]
-version = gui_variables_values[1]
-edition = gui_variables_values[2]
-last_update =gui_variables_values[3]
-psfunctions = gui_variables_values[4]  #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
-now = datetime.now()
-timestamp = now.strftime('%H:%M:%S')
-jumpserver = gui_variables_values[5]
-logoffdir = gui_variables_values[6]
-deadday = gui_variables_values[7] 
+#Ensure the version being ran is the current one, currently only by date
+if eval(gui_variables["date_compare"]):
+    ctypes.windll.user32.MessageBoxW(0, gui_variables["old_date_title"], gui_variables["old_date_message"], 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
+    exit()
 
-#print (software_vars)
-
-currentday = now.strftime('%Y%m%d')
-if int(currentday) > int(deadday):
-    ctypes.windll.user32.MessageBoxW(0, "Please upgrade so that the cows may live?", "Upgrade this old piece of $#%@", 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
-    #print("Gone baby gone")
+if eval(gui_variables["version_compare"]):
+    ctypes.windll.user32.MessageBoxW(0, gui_variables["old_version_title"], gui_variables['old_version_message'], 0) #Source: https://stackoverflow.com/questions/2963263/how-can-i-create-a-simple-message-box-in-python
     exit()
 
 
@@ -77,13 +54,17 @@ customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 class App(customtkinter.CTk):
-    admincheck = GUI_functions.has_admin()
-    #print(f"{admincheck[1]}")
+    admincheck = GUI_functions.has_admin() #see if running as admin
     def __init__(self):
         super().__init__()
 
-        # configure window
-        self.title(f"{program_name} - {version}")
+        # Title change based on version of program compared to current
+        if float(current_version) == float(program_version): #if version is the same
+            report_version = {gui_variables["current_version"]}
+        elif float(current_version) > float(program_version): #if program is older than current
+            report_version = (f"You are running version {program_version}, please upgrade to {gui_variables["current_version"]}")
+
+        self.title(f"{program_name} - {report_version}")
         self.geometry(f"{1100}x{800}")
 
         # configure grid layout (4x4)
@@ -144,7 +125,6 @@ class App(customtkinter.CTk):
         self.tabview.tab("Network Hunt").grid_columnconfigure(1, weight=1)
 
 
-
         # create tabview2 for Computers tab
         self.tabview2 = customtkinter.CTkTabview(self.tabview.tab("Computer"), width=350,height=470,corner_radius=25)
         self.tabview2.grid(row=0,rowspan=3, column=0,columnspan=3, padx=(0, 0), pady=(0, 0), sticky="nwse")
@@ -158,7 +138,7 @@ class App(customtkinter.CTk):
         self.tabview2.tab("Magic Fix").grid_columnconfigure(1, weight=1)
        
        
-        ####+++++++++++++++++++++++++++++++++++++++
+        #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Info Tab
         self.HostnameLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
         self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="ne")
@@ -208,18 +188,6 @@ class App(customtkinter.CTk):
 
         self.extendedsearch_button = customtkinter.CTkButton(master=self, command=self.extendedsearch_button_event,fg_color="transparent")
         self.extendedsearch_button.grid(row=4, column=1, padx=(450,20), pady=(20,10), sticky="sw")
-
-       # self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE",validate='all', validatecommand=(GUI_functions.callback, '%P'),width=250)
-       # self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sw")
-       # self.entry.bind("<Return>", self.return_pressed)
-       # self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
-       # self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw") #colum was 2
-
-        #self.extendedsearch_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.extendedsearch_button_event,fg_color="transparent")
-        #self.extendedsearch_button.grid(row=0, column=3, padx=(0,0), pady=(0,0))
-
-        #self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
-        #self.main_button_1.grid(row=4, column=2, padx=(20, 20), pady=(20, 10), sticky="sew")
 
         self.logstats_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.logstats_button_event,fg_color="transparent")
         self.logstats_button.grid(row=0, column=3, padx=(0,0), pady=(45,0))

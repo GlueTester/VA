@@ -6,8 +6,14 @@
 
        "program_name": "Admin Tool (Working title)",
 
-       "version": "0.2 Alpha",
+       "current_version": 0.2,
 
+       "version_compare": "float(current_version) > (float(program_version)+0.10)",
+
+       "old_version_message": "You are running an obsolete version",
+
+       "old_version_title": "Please upgrade to the current version",
+       
        "edition": "Cherry Pie",
 
        "last_update": "22 JULY 2024",
@@ -16,11 +22,21 @@
 
        "jumpserver": "VHALEXMUL01A",
 
-       "logoffdir": "//v09.med.va.gov/LEX/Workgroup/Public/LogonScripts/Lognoff$",
+       "log_off_dir": "//v09.med.va.gov/LEX/Workgroup/Public/LogonScripts/Lognoff$",
 
-       "last_update": "22 JULY 2024",
+       "dead_day": 20240727,
 
-       "deadday": 20240805
+       "now": "datetime.now()",
+
+       "timestamp": "now.strftime('%H:%M:%S')",
+
+       "currentday":"now.strftime('%Y%m%d')",
+
+       "date_compare": "int(currentday) > int(deadday)",
+
+       "old_date_title": "Upgrade this old piece of $#%@",
+
+       "old_date_message": "Please upgrade so that the cows may live?"
 
     }
     ],
