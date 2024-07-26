@@ -17,6 +17,8 @@ import json
     #pip3 install customtkinter
     #pip3 install python-dotenv
     #pip3 install pypiwin32
+    #pip3 install Selenium #https://trm.oit.va.gov/ToolPage.aspx?tid=6440#
+    #pip3 install selenium webdriver-manager
 
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
