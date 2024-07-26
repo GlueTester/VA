@@ -70,7 +70,8 @@ scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/showHome.do')
 
 #raw_data = scraper.extract_raw_data()
 
-searchitem  = "CFSVHALEXFeistT"
+searchitem  = "4FF2"
+#searchLimit0 > option:nth-child(2)
 
 #print(raw_data)
 
@@ -105,12 +106,19 @@ scraper.driver.find_element(By.XPATH,"/html/body/form/div[2]/table[1]/tbody/tr[1
 #ensure we are logged in
 headertext_user = scraper.extract_single_element("cuesHeaderText", By.CLASS_NAME)
 
-if (headertext_user.text != username):  #.text has to be added becuase element was being retun not its content
+if (headertext_user.text != username):  #.text has to be added becuase element was being retun not its content #Source:https://stackoverflow.com/questions/70203815/python-selenium-printing-results-as-selenium-webdriver-remote-webelement-webe
     print (f"Logged in user is:{headertext_user.text}  but the username provide is:{username}")
 else:
     scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/phoneFindList.do') #here we are only search by what the filter are by defualt (Device Name. starts with)
+    scraper.driver.find_element(By.XPATH,'//*[@id="searchLimit0"]/option[2]').click() # select contains as filter
+    time.sleep(10)
+    #//*[@id="searchLimit0"]/option[2]
+    #/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[5]/select
+    #/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[5]/select/option[2]
+
+    #searchLimit0 > option:nth-child(2)
+    
     scraper.input("searchString0",searchitem )
-    #scraper.click_single_element("findButton")
     scraper.driver.find_element(By.XPATH,"/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[7]/input").click()
     last_resistered = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(8)').text
     device_Name_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(3) > a').text
