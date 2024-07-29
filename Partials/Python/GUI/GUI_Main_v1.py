@@ -22,6 +22,7 @@ import json
 
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
+
 #Create empty arrays
 software_variables, drivers_variables, software_names, driver_names = ([] for i in range(4))
 
@@ -59,6 +60,9 @@ logoffdir = gui_variables["log_off_dir"]
 deadday = gui_variables["dead_day"]
 currentday = eval(gui_variables["currentday"])
 program_version = 0.2
+logbox_input_blank_error = gui_variables["logbox_input_blank_error"]
+inputbox_click_blank = gui_variables["inputbox_click_blank"]
+first_log_msg = gui_variables["first_log_msg"]
 
 
 
@@ -122,16 +126,26 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="Enter EE",validate='all', validatecommand=(GUI_functions.callback, '%P'),width=250)
+        self.entry = customtkinter.CTkEntry(self, placeholder_text = inputbox_click_blank ,  validatecommand=(GUI_functions.callback, '%P'),width=250)
         self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sw")
-        self.entry.bind("<Return>", self.return_pressed)
+        self.entry.bind("<Return>", self.return_pressed) #Allows ENTER key to start search
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
-        self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw") #colum was 2
+        self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw")
        
+
+        #Create Extended Search Button
+        Hostname="none"
+        self.extendedsearch_button = customtkinter.CTkButton(master=self,state="disabled",text="", fg_color="transparent",command=self.extendedsearch_button_event)
+        self.extendedsearch_button.grid(row=4, column=1, padx=(450,20), pady=(20,10), sticky="sw")
 
         # create Logbox
         self.logbox = customtkinter.CTkTextbox(self, width=250, height=150)
         self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
+
+
+
+
+
 
         # create tabview for main
         self.tabview = customtkinter.CTkTabview(self, width=250,height=470,corner_radius=25)
@@ -140,11 +154,13 @@ class App(customtkinter.CTk):
         self.tabview.add("User")
         self.tabview.add("Printer")
         self.tabview.add("Vista")
+        self.tabview.add("Phones")
         self.tabview.add("Network Hunt")
         self.tabview.tab("Computer").grid_columnconfigure(1, weight=1)  # configure grid of individual tabs
         self.tabview.tab("User").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Printer").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Vista").grid_columnconfigure(1, weight=1)
+        self.tabview.tab("Phones").grid_columnconfigure(1, weight=1)
         self.tabview.tab("Network Hunt").grid_columnconfigure(1, weight=1)
 
 
@@ -162,7 +178,7 @@ class App(customtkinter.CTk):
        
        
         #+++++++++++++++++++++++++++++++++++++++++++++++++
-        #Info Tab
+        #Computer - Info Tab
         self.HostnameLabel = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="Hostname: ", font=customtkinter.CTkFont(size=15))
         self.HostnameLabel.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="ne")
         self.HostnameText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="" , justify="left")
@@ -208,13 +224,8 @@ class App(customtkinter.CTk):
         self.MBSerialText = customtkinter.CTkLabel(self.tabview2.tab("Info"), text="", justify="left")
         self.MBSerialText.grid(row=0, column=1, padx=(0,0), pady=(180,0), sticky="nw")
 
-
-        self.extendedsearch_button = customtkinter.CTkButton(master=self, command=self.extendedsearch_button_event,fg_color="transparent")
-        self.extendedsearch_button.grid(row=4, column=1, padx=(450,20), pady=(20,10), sticky="sw")
-
         self.logstats_button = customtkinter.CTkButton(self.tabview2.tab("Info"), command=self.logstats_button_event,fg_color="transparent")
         self.logstats_button.grid(row=0, column=3, padx=(0,0), pady=(45,0))
-
 
         #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Software Insatll Tab    
@@ -247,11 +258,15 @@ class App(customtkinter.CTk):
         self.SpecailtySearch.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
 
 
+                
+        #Login statas button
+        #self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
+        #self.extendedsearch_button.configure(state="enabled", command=(GUI_functions.extendedsearch_button_event(self, Hostname)))
+
         # set default values
         self.sidebar_button_1.configure(state="enabled", text="Button 1")
         self.sidebar_button_2.configure(state="enabled", text="Button 2")
         self.sidebar_button_3.configure(state="disabled", text="Disabled Button")
-        self.extendedsearch_button.configure(state="disabled", text="")
         self.logstats_button.configure(state="disabled", text="")
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
@@ -261,6 +276,8 @@ class App(customtkinter.CTk):
             self.Software_Search.configure(state="disabled", text="Run as admin to enable")
         self.tabview2._segmented_button._buttons_dict["Magic Fix"].configure(state="disabled")     
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
+        self.logbox.insert('end', f"{first_log_msg} \n")
+
 
         #Set as main focus
         #self.entry.focus_force() 
@@ -282,59 +299,6 @@ class App(customtkinter.CTk):
         self.switcher = customtkinter.CTkLabel(self.tabview.tab("Computer"))
         print("sidebar_button click")
 
-    def extendedsearch_button_event(self):
-        
-        self.logbox.insert('end', f"{timestamp}    {program_name} - Extended search started on {Hostname} \n")
-        self.extendedsearch_button.configure(state="disabled", fg_color="transparent",text="")
-        self.main_button_1.configure(state="disabled",text="Please wait...")
-        self.update() #force update of gui
-        self.logbox.see("end")
-
-        def ADsearch(Stat):
-            proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; Get_PCInfo {Hostname} {Stat}"], stdout=subprocess.PIPE)
-            try:
-                outs, errs = proc.communicate(timeout=15)
-                global out
-                out = outs.decode("utf-8").strip("b'.\r\n'") # convert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
-                #EditLabel
-            except subprocess.TimeoutExpired:
-                proc.kill()
-                outs, errs = proc.communicate()   
-
-        
-        ADsearch("DistinguishedName | Select-Object -ExpandProperty DistinguishedName")
-        self.OUtext.configure(text=out)
-        self.logbox.insert('end', f"{timestamp}    {Hostname} - AD Location: {out}  \n") #place info in Log box
-        self.logbox.see("end")
-
-        ADsearch("Enabled | Select-Object -ExpandProperty Enabled")
-        if out == "True": #if the out variabel has a value then is true
-            self.EnabledText.configure(text=out,text_color="green")
-        elif out == "False":
-            self.EnabledText.configure(text=out,text_color="red")
-        else:
-            self.EnabledText.configure(text="Not in AD",text_color="red")
-        self.logbox.insert('end', f"{timestamp}    {Hostname}  - Enabled: {out}  \n") #place info in Log box
-        self.logbox.see("end")
-        
-
-        if self.admincheck[1] == True: #ensure vaule is True aka admin
-            pcrunningscript = socket.gethostname()
-            if  pcrunningscript == jumpserver:
-                vlanname = GUI_functions.VlanLookup(self.IPText.cget("text"))
-                self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
-                self.LocationText.configure(text=vlanname)
-                self.MBSerialText.configure(text=GUI_functions.MotherBoardSerial(Hostname))
-            else:
-                self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
-        elif self.admincheck[1] == False:
-            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
-            self.LocationText.configure(text="Run as admin to enable")
-        else:
-            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
-        
-        #reenable search button
-        self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
 
     def logstats_button_event(self):
         machinelogpath = (f"{logoffdir}/machinestats/{Hostname}.log")
@@ -347,11 +311,11 @@ class App(customtkinter.CTk):
     def clearthefield(self):
         self.StatusText.configure(text="", text_color="black")
         self.HostnameText.configure(text="")
-        self.OUtext.configure(text="Extended Option")
-        self.StatusText.configure(text="Extended Option")
+        self.OUtext.configure(text="")
+        self.StatusText.configure(text="")
         self.IPText.configure(text="")
-        self.EnabledText.configure(text="Extended Option", text_color="black")
-        self.LocationText.configure(text="Extended Option")
+        self.EnabledText.configure(text="", text_color="black")
+        self.LocationText.configure(text="")
         self.MBSerialText.configure(text="")
         self.logbox.see("end")
        
@@ -364,46 +328,15 @@ class App(customtkinter.CTk):
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
-            self.logbox.insert('end', f"{timestamp}    {program_name} - Please input an EE to start \n")
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {logbox_input_blank_error} \n")
         else:
             if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
-                self.tabview.set("Computer")#change active tab to the "user tab"
-                self.update()
-                Hostname = GUI_functions.EEtoHostname(searchfieldinput)
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for EE {searchfieldinput} \n")
-                if Hostname or Hostname == 0:
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
-                    self.HostnameText.configure(text=Hostname)   
+                Hostname = GUI_functions.Search_is_Computer(self, searchfieldinput)
+                print (Hostname)
+                        #Create Extended Search Button
 
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
-                    pingreply = GUI_functions.ping(Hostname)
-                    
-                    if pingreply == "Offline":
-                        self.StatusText.configure(text="Offline", text_color="red")  
-                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
 
-                    elif (pingreply == "Cant get IP of machine"):
-                        self.StatusText.configure(text="Offline", text_color="red")  
-                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
-
-                    else:
-                        self.StatusText.configure(text="Online", text_color="green")
-                        self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
-                        self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
-                        self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
-                        self.IPText.configure(text=pingreply)
-                        if self.admincheck[1] == True: #ensure vaule is True aka admin
-                            pcrunningscript = socket.gethostname()
-                            if  pcrunningscript == jumpserver:
-                                self.MBSerialText.configure(text=GUI_functions.MotherBoardSerial(Hostname))
-                        elif self.admincheck[1] == False:
-                            self.MBSerialText.configure(text="Run as admin to enable")
-                        else:
-                            self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
-                    
-
-                else :
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+                
 
             #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
@@ -435,6 +368,13 @@ class App(customtkinter.CTk):
             self.logbox.insert('end', f"{timestamp}    Please select a software to start: \n")
         self.logbox.see("end")
 
+    def extendedsearch_button_event(self):
+        #WE must run this a fundtion in the main, if the command on the button is directed to the GUI functions it exciture without click, always!
+        GUI_functions.extendedsearch_button_event(self, Hostname)
+   
+   
+   
+   
     #def MotherBoardSerial():
     #    serial = GUI_functions.powercmd(f"MBserial('{Hostname}')")
     #    self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")

@@ -1,12 +1,58 @@
-import time
 import datetime
 import subprocess, sys
 import os
 from dotenv import load_dotenv, set_key, get_key #pip3 install python-dotenv   and pip3 install pypiwin32
 import socket
-#import "C:\Users\VHALEXKingR1\GIT\VA\Partials\Python\GUI\GUI_psfunctions.ps1" as psfunctions
+import time
+import subprocess, sys
+import os
+from datetime import datetime
+import socket #to get Hostname of machine running program
+import json
 
-psfunctions = '//v09.med.va.gov/LEX/Service/IMS/Software/Snakeking/psfunctions.ps1'
+var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
+
+
+#Create empty arrays
+software_variables, drivers_variables, software_names, driver_names = ([] for i in range(4))
+
+with open(var_json) as jsonFile:
+    data = json.load(jsonFile)
+    for result in data['GUIParms']:
+        a = json.dumps( result, indent=4)
+        gui_variables = json.loads(a)
+    for result in data['Software']:
+        software_variables.append(result)
+    for result in data['Drivers']:
+        drivers_variables.append(result)
+
+    #Extract all enabled software titles from json and place into new array for combobox
+for i in range(len(software_variables)):
+    if software_variables[i]["State"] == "enabled":
+        software_names.append(software_variables[i]["Name"])
+
+    #Extract all enabled driver titles from json and place into new array for combobox
+for i in range(len(drivers_variables)):
+    if drivers_variables[i]["State"] == "enabled":
+        driver_names.append(drivers_variables[i]["Name"])
+
+
+
+program_name = gui_variables["program_name"]
+current_version = gui_variables["current_version"]
+edition = gui_variables["edition"]
+last_update = gui_variables["last_update"]
+psfunctions = gui_variables["psfunctions"] #Source: https://stackoverflow.com/questions/7169845/using-python-how-can-i-access-a-shared-folder-on-windows-network
+now = eval(gui_variables["now"])
+timestamp = eval(gui_variables["timestamp"])
+jumpserver = gui_variables["jumpserver"]
+logoffdir = gui_variables["log_off_dir"]
+deadday = gui_variables["dead_day"]
+currentday = eval(gui_variables["currentday"])
+program_version = 0.2
+logbox_input_blank_error = gui_variables["logbox_input_blank_error"]
+inputbox_click_blank = gui_variables["inputbox_click_blank"]
+first_log_msg = gui_variables["first_log_msg"]
 envfile = "C:\\temp\\.env"
 
 #if not os.path.exists(envfile):   #create if not exist https://stackoverflow.com/questions/35807605/create-a-file-if-it-doesnt-exist
@@ -14,16 +60,6 @@ envfile = "C:\\temp\\.env"
 if not os.path.exists(envfile):
     open(envfile, 'w')
 
-'''
-def Quick_Search_clicked(self):
-    self.Button_QuickSearch.setText("Searching")
-    EE =(input_EE.text())
-    SearchType="Quick"
-    set_key(dotenv_path="C:\\temp\\.env", key_to_set="EE", value_to_set=EE) 
-    set_key(dotenv_path="C:\\temp\\.env", key_to_set="SearchType", value_to_set=SearchType)
-    ResolveName(EE)
-
-'''
 def has_admin():
     #import os
     if os.name == 'nt':
@@ -159,6 +195,106 @@ def MotherBoardSerial(Hostname):
     serial = powercmd(f"MBserial('{Hostname}')")
     #self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")
     return serial
+
+def Search_is_Computer(self, searchfieldinput):
+    self.tabview.set("Computer")#change active tab to the "user tab"
+    self.update()
+    Hostname = EEtoHostname(searchfieldinput)
+    self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for {searchfieldinput} \n")
+    if Hostname or Hostname == 0:
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
+        self.HostnameText.configure(text=Hostname)   
+
+
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
+        pingreply = ping(Hostname)
+        
+        if pingreply == "Offline":
+            self.StatusText.configure(text="Offline", text_color="red")  
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+
+        elif (pingreply == "Cant get IP of machine"):
+            self.StatusText.configure(text="Offline", text_color="red")  
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+
+        else:
+            self.StatusText.configure(text="Online", text_color="green")
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
+            self.IPText.configure(text=pingreply)
+            if self.admincheck[1] == True: #ensure vaule is True aka admin
+                pcrunningscript = socket.gethostname()
+                if  pcrunningscript == jumpserver:
+                    self.MBSerialText.configure(text=MotherBoardSerial(Hostname))
+            elif self.admincheck[1] == False:
+                self.MBSerialText.configure(text="Run as admin to enable")
+            else:
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
+            self.OUtext.configure(text="Extended Option")
+            self.EnabledText.configure(text="Extended Option", text_color="black")
+            self.LocationText.configure(text="Extended Option")
+            self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
+            self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
+            return Hostname
+    else :
+        self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+
+def extendedsearch_button_event(self, Hostname):
+    
+    self.logbox.insert('end', f"{timestamp}    {program_name} - Extended search started on {Hostname} \n")
+    self.extendedsearch_button.configure(state="disabled", fg_color="transparent",text="")
+    self.main_button_1.configure(state="disabled",text="Please wait...")
+    self.update() #force update of gui
+    self.logbox.see("end")
+
+    def ADsearch(Stat):
+        proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; Get_PCInfo {Hostname} {Stat}"], stdout=subprocess.PIPE)
+        try:
+            outs, errs = proc.communicate(timeout=15)
+            global out
+            out = outs.decode("utf-8").strip("b'.\r\n'") # convert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
+            #EditLabel
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            outs, errs = proc.communicate()   
+
+    
+    ADsearch("DistinguishedName | Select-Object -ExpandProperty DistinguishedName")
+    self.OUtext.configure(text=out)
+    self.logbox.insert('end', f"{timestamp}    {Hostname} - AD Location: {out}  \n") #place info in Log box
+    self.logbox.see("end")
+
+    ADsearch("Enabled | Select-Object -ExpandProperty Enabled")
+    if out == "True": #if the out variabel has a value then is true
+        self.EnabledText.configure(text=out,text_color="green")
+    elif out == "False":
+        self.EnabledText.configure(text=out,text_color="red")
+    else:
+        self.EnabledText.configure(text="Not in AD",text_color="red")
+    self.logbox.insert('end', f"{timestamp}    {Hostname}  - Enabled: {out}  \n") #place info in Log box
+    self.logbox.see("end")
+    
+
+    if self.admincheck[1] == True: #ensure vaule is True aka admin
+        pcrunningscript = socket.gethostname()
+        if  pcrunningscript == jumpserver:
+            vlanname = GUI_functions.VlanLookup(self.IPText.cget("text"))
+            self.logbox.insert('end', f"{timestamp}    {program_name} - vlan name:{vlanname} \n")
+            self.LocationText.configure(text=vlanname)
+            self.MBSerialText.configure(text=GUI_functions.MotherBoardSerial(Hostname))
+        else:
+            self.logbox.insert('end', f"{timestamp}    {program_name} - You will need to be on {jumpserver} to know locations. You are on {pcrunningscript} \n")
+    elif self.admincheck[1] == False:
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]} \n")
+        self.LocationText.configure(text="Run as admin to enable")
+    else:
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
+    
+    #reenable search button
+    
+    self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
+    
+
+
 
 
 #VlanLookup("10.74.116.243")

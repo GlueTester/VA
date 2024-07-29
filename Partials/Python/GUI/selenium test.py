@@ -70,7 +70,7 @@ scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/showHome.do')
 
 #raw_data = scraper.extract_raw_data()
 
-searchitem  = "4FF2"
+searchitem  = "e68f"
 #searchLimit0 > option:nth-child(2)
 
 #print(raw_data)
