@@ -262,15 +262,40 @@ class App(customtkinter.CTk):
 
         self.User_FirstName_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Full Name: ", font=customtkinter.CTkFont(size=15))
         self.User_FirstName_Label.grid(row=0, column=0, padx=(0,0), pady=(50,0),sticky="E")
-        self.User_FirstName_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="first name test", justify="left")
+        self.User_FirstName_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
         self.User_FirstName_Text.grid(row=0, column=1, padx=(0,0), pady=(50,0), sticky="w")
 
+        self.User_Department_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Department: ", font=customtkinter.CTkFont(size=15))
+        self.User_Department_Label.grid(row=0, column=0, padx=(0,0), pady=(100,0),sticky="E")
+        self.User_Department_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_Department_Text.grid(row=0, column=1, padx=(0,0), pady=(100,0), sticky="w")
+
         self.User_Title_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Title: ", font=customtkinter.CTkFont(size=15))
-        self.User_Title_Label.grid(row=0, column=0, padx=(0,0), pady=(100,0),sticky="E")
-        self.User_Title_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="title test", justify="left")
-        self.User_Title_Text.grid(row=0, column=1, padx=(0,0), pady=(100,0), sticky="w")
+        self.User_Title_Label.grid(row=0, column=0, padx=(0,0), pady=(150,0),sticky="E")
+        self.User_Title_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_Title_Text.grid(row=0, column=1, padx=(0,0), pady=(150,0), sticky="w")
+
+        self.User_Email_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Email: ", font=customtkinter.CTkFont(size=15))
+        self.User_Email_Label.grid(row=0, column=0, padx=(0,0), pady=(200,0),sticky="E")
+        self.User_Email_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_Email_Text.grid(row=0, column=1, padx=(0,0), pady=(200,0), sticky="w")
+
+        self.User_Enabled_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Enabled: ", font=customtkinter.CTkFont(size=15))
+        self.User_Enabled_Label.grid(row=0, column=0, padx=(0,0), pady=(250,0),sticky="E")
+        self.User_Enabled_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_Enabled_Text.grid(row=0, column=1, padx=(0,0), pady=(250,0), sticky="w")
+
+        self.User_TourOfDuty_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Tour OF Duty: ", font=customtkinter.CTkFont(size=15))
+        self.User_TourOfDuty_Label.grid(row=0, column=0, padx=(0,0), pady=(300,0),sticky="E")
+        self.User_TourOfDuty_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_TourOfDuty_Text.grid(row=0, column=1, padx=(0,0), pady=(300,0), sticky="w")
 
 
+        self.User_Manager_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="User's Manager: ", font=customtkinter.CTkFont(size=15))
+        self.User_Manager_Label.grid(row=0, column=0, padx=(0,0), pady=(350,0),sticky="E")
+        self.User_Manager_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="", justify="left")
+        self.User_Manager_Text.grid(row=0, column=1, padx=(0,0), pady=(350,0), sticky="w")
+ 
         #+++++++++++++++++++++++++++++++++++++++++++++++++
         #Phone Tab
         self.LastRegistered_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="Last Registered: ", font=customtkinter.CTkFont(size=15))
@@ -370,6 +395,15 @@ class App(customtkinter.CTk):
         self.DeviceName_Text.configure(text="")
         self.Description_Text.configure(text="")
         self.Phone_IPV4_Text.configure(text="")
+        self.SAM_Text.configure(text="")
+        self.User_Department_Text.configure(text="")
+        self.User_FirstName_Text.configure(text="")
+        self.User_Email_Text.configure(text="")
+        self.User_Enabled_Text.configure(text="")
+        self.User_TourOfDuty_Text.configure(text="")
+        self.User_Title_Text.configure(text="")
+        self.User_Manager_Text.configure(text="")
+        
        
 
     def searchclick(self):
@@ -378,6 +412,7 @@ class App(customtkinter.CTk):
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
+        self.entry.configure(text="")
 
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - {logbox_input_blank_error} \n")
@@ -388,8 +423,18 @@ class App(customtkinter.CTk):
           
             #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
-                GUI_functions.Search_is_SAM(self, searchfieldinput)
-
+                userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
+                self.SAM_Text.configure(text=userinfo[0])
+                self.User_Department_Text.configure(text=userinfo[0])
+                self.User_FirstName_Text.configure(text=userinfo[2])
+                self.User_Email_Text.configure(text=userinfo[3])
+                #self.User_Enabled_Text.configure(text=userinfo[4])
+                self.User_TourOfDuty_Text.configure(text=userinfo[5].split('\n',1)[1])
+                self.User_Title_Text.configure(text=userinfo[1])  
+                self.User_Manager_Text.configure(text=userinfo[6].split('CN=',1)[1].split(',OU',2)[0].replace("\\","")) #https://www.geeksforgeeks.org/python-string-split/
+            
+            #If MAC address
             elif re.match("[0-9a-f]{4}$",searchfieldinput.lower()): #Source: https://stackoverflow.com/questions/7629643/how-do-i-validate-the-format-of-a-mac-address
 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - \"{searchfieldinput}\" looks like a MAC, checking Call Manager\n")

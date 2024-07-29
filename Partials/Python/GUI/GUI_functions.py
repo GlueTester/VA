@@ -13,6 +13,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
+import pyad.adquery # pip3 install pyad
 
 
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
@@ -83,7 +84,6 @@ def has_admin():
             return (os.environ['USERNAME'],False)
 
 def  EEtoHostname (EE):
-    import pyad.adquery # pip3 install pyad
     q = pyad.adquery.ADQuery()  #pip3 install pypiwin32
     #Source https://pypi.org/project/pyad/
     q.execute_query(
@@ -94,6 +94,33 @@ def  EEtoHostname (EE):
     for row in q.get_results():
         if EE in (row["Name"] ):
             return (row["Name"])
+
+def  SAMtoUserinfo (SAM):
+    t = pyad.adquery.ADQuery()
+    user = SAM
+    t.execute_query(
+        attributes = ["Department","title","DisplayName","mail","Enabled","info","Manager"],#"lastlogondate"],#,"LockedOut","Manager","Name","PasswordNotRequired"],#"SamAccountName","SID","StreetAddress","telephoneNumber","Title","whenCreated"],
+        #attributes = ["Department","Description","DisplayName","mail","Enabled","info","LastLogonDate","LockedOut","Manager","Name","PasswordNotRequired","SamAccountName","SID","StreetAddress","telephoneNumber","Title","whenCreated"],
+        where_clause = f"SamAccountName = '{user}'",
+        base_dn = "DC=v09,DC=med,DC=va,DC=gov"
+    )
+    for row in t.get_results():
+        print (row)
+        department = row["Department"]
+        title = row["title"]
+        displayname = row["DisplayName"]
+        emailaddress = row["mail"]
+        enabled = row["Enabled"]
+        info = row["info"]
+        #lastlogondate = row["lastlogondate"]
+        #lockedout = row["LockedOut"]
+        #
+        manager = row["Manager"]
+        #name = row["Name"]
+        #enabled = row["Enabled"]
+        #passwordnotrequired = row["PasswordNotRequired"]
+  
+    return department,title,displayname,emailaddress,enabled,info,manager#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
         
 def pingback(Hostname):
     ping = subprocess.Popen(
@@ -301,6 +328,8 @@ def extendedsearch_button_event(self, Hostname):
 def Search_is_SAM(self,searchfieldinput):
     self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
     self.tabview.set("User")#change active tab to the "user tab"
+    whatigot = SAMtoUserinfo(searchfieldinput)
+    return whatigot
 
 def search_is_MAC(self, searchfieldinput):
     self.tabview.set("Phones")#change active tab to the "user tab"
