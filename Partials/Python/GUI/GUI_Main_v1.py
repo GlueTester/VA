@@ -11,6 +11,7 @@ import ctypes
 import glob #for file search
 import numbers #to see if numbers
 import json
+import re
 
 #prereq installs
     #pip3 install python-dotenv
@@ -134,17 +135,12 @@ class App(customtkinter.CTk):
        
 
         #Create Extended Search Button
-        Hostname="none"
         self.extendedsearch_button = customtkinter.CTkButton(master=self,state="disabled",text="", fg_color="transparent",command=self.extendedsearch_button_event)
         self.extendedsearch_button.grid(row=4, column=1, padx=(450,20), pady=(20,10), sticky="sw")
 
         # create Logbox
         self.logbox = customtkinter.CTkTextbox(self, width=250, height=150)
         self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
-
-
-
-
 
 
         # create tabview for main
@@ -228,7 +224,7 @@ class App(customtkinter.CTk):
         self.logstats_button.grid(row=0, column=3, padx=(0,0), pady=(45,0))
 
         #+++++++++++++++++++++++++++++++++++++++++++++++++
-        #Software Insatll Tab    
+        #Computer -Software Insatll Tab    
         self.Software_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Software Install"), text="Software: ", font=customtkinter.CTkFont(size=15))
         self.Software_Combo1Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
         self.Software_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Software Install"), values = software_names)
@@ -243,7 +239,7 @@ class App(customtkinter.CTk):
         self.Software_Search.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
        
         #+++++++++++++++++++++++++++++++++++++++++++++++++
-        #Specailty Tab        
+        #Computer -Specailty Tab        
         self.Specailty_Combo1Label = customtkinter.CTkLabel(self.tabview2.tab("Specialty Tab"), text="Specailty Images: ", font=customtkinter.CTkFont(size=15))
         self.Specailty_Combo1Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
         self.Specailty_Combo1menu_1 = customtkinter.CTkComboBox(self.tabview2.tab("Specialty Tab"), values=["","Audiology","BCMA Cart","EDIS Board","Lab","Manikin","PeriOp"])
@@ -257,6 +253,56 @@ class App(customtkinter.CTk):
         self.SpecailtySearch = customtkinter.CTkButton(self.tabview2.tab("Specialty Tab"), text="Deploy", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.Specailty_Deploy_Event)
         self.SpecailtySearch.grid(row=2, column=2, padx=(20, 20), pady=(20, 10), sticky="se")
 
+        #+++++++++++++++++++++++++++++++++++++++++++++++++
+        #User Tab
+        self.SAM_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Account: ", font=customtkinter.CTkFont(size=15))
+        self.SAM_Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
+        self.SAM_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="sam test", justify="left")
+        self.SAM_Text.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
+
+        self.User_FirstName_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Full Name: ", font=customtkinter.CTkFont(size=15))
+        self.User_FirstName_Label.grid(row=0, column=0, padx=(0,0), pady=(50,0),sticky="E")
+        self.User_FirstName_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="first name test", justify="left")
+        self.User_FirstName_Text.grid(row=0, column=1, padx=(0,0), pady=(50,0), sticky="w")
+
+        self.User_Title_Label = customtkinter.CTkLabel(self.tabview.tab("User"), text="Title: ", font=customtkinter.CTkFont(size=15))
+        self.User_Title_Label.grid(row=0, column=0, padx=(0,0), pady=(100,0),sticky="E")
+        self.User_Title_Text = customtkinter.CTkLabel(self.tabview.tab("User"), text="title test", justify="left")
+        self.User_Title_Text.grid(row=0, column=1, padx=(0,0), pady=(100,0), sticky="w")
+
+
+        #+++++++++++++++++++++++++++++++++++++++++++++++++
+        #Phone Tab
+        self.LastRegistered_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="Last Registered: ", font=customtkinter.CTkFont(size=15))
+        self.LastRegistered_Label.grid(row=0, column=0, padx=(0,0), pady=(0,0),sticky="E")
+        self.LastRegistered_Text = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="", justify="left")
+        self.LastRegistered_Text.grid(row=0, column=1, padx=(0,0), pady=(0,0), sticky="w")
+
+        self.PhoneStatus_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="Status: ", font=customtkinter.CTkFont(size=15))
+        self.PhoneStatus_Label.grid(row=0, column=0, padx=(0,0), pady=(50,0),sticky="E")
+        self.PhoneStatus_Text = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="", justify="left")
+        self.PhoneStatus_Text.grid(row=0, column=1, padx=(0,0), pady=(50,0), sticky="w")
+
+
+        self.DeviceName_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="Device Name: ", font=customtkinter.CTkFont(size=15))
+        self.DeviceName_Label.grid(row=0, column=0, padx=(0,0), pady=(100,0),sticky="E")
+        self.DeviceName_Text = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="", justify="left")
+        self.DeviceName_Text.grid(row=0, column=1, padx=(0,0), pady=(100,0), sticky="w")
+       
+
+        self.Description_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="Decription: ", font=customtkinter.CTkFont(size=15))
+        self.Description_Label.grid(row=0, column=0, padx=(0,0), pady=(150,0),sticky="E")
+        self.Description_Text = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="", justify="left")
+        self.Description_Text.grid(row=0, column=1, padx=(0,0), pady=(150,0), sticky="w")
+
+
+        self.Phone_IPV4_Label = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="IPV4: ", font=customtkinter.CTkFont(size=15))
+        self.Phone_IPV4_Label.grid(row=0, column=0, padx=(0,0), pady=(200,0),sticky="E")
+        self.Phone_IPV4_Text = customtkinter.CTkLabel(self.tabview.tab("Phones"), text="", justify="left")
+        self.Phone_IPV4_Text.grid(row=0, column=1, padx=(0,0), pady=(200,0), sticky="w")
+
+
+        
 
                 
         #Login statas button
@@ -308,6 +354,7 @@ class App(customtkinter.CTk):
         self.searchclick()
         self.logbox.see("end")
 
+
     def clearthefield(self):
         self.StatusText.configure(text="", text_color="black")
         self.HostnameText.configure(text="")
@@ -318,8 +365,12 @@ class App(customtkinter.CTk):
         self.LocationText.configure(text="")
         self.MBSerialText.configure(text="")
         self.logbox.see("end")
+        self.LastRegistered_Text.configure(text="")
+        self.PhoneStatus_Text.configure(text="")
+        self.DeviceName_Text.configure(text="")
+        self.Description_Text.configure(text="")
+        self.Phone_IPV4_Text.configure(text="")
        
-        
 
     def searchclick(self):
         self.main_button_1.configure(state="disabled",text="Please wait...")
@@ -327,30 +378,31 @@ class App(customtkinter.CTk):
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
+
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - {logbox_input_blank_error} \n")
         else:
+            #Computer - get for only didgits like an EE
             if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
                 Hostname = GUI_functions.Search_is_Computer(self, searchfieldinput)
-                print (Hostname)
-                        #Create Extended Search Button
-
-
-                
-
+          
             #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
-                self.tabview.set("User")#change active tab to the "user tab"
+                GUI_functions.Search_is_SAM(self, searchfieldinput)
+
+            elif re.match("[0-9a-f]{4}$",searchfieldinput.lower()): #Source: https://stackoverflow.com/questions/7629643/how-do-i-validate-the-format-of-a-mac-address
+
+                self.logbox.insert('end', f"{timestamp}    {program_name} - \"{searchfieldinput}\" looks like a MAC, checking Call Manager\n")
+                result = GUI_functions.search_is_MAC(self, searchfieldinput)
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Finished, Disconnected from Call Manager\n")
+
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
-
-        
-
         
         self.logbox.see("end")
         #reenable search button
         self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
+
 
     def Specailty_Deploy_Event(self):
         spec_image_type = self.Specailty_Combo1menu_1.get()
@@ -359,7 +411,8 @@ class App(customtkinter.CTk):
         else:
             self.logbox.insert('end', f"{timestamp}    Please select a image type to start: \n")
         self.logbox.see("end")
-    
+
+
     def Software_Deploy_Event(self):
         softwarename = self.Software_Combo1menu_1.get()
         if softwarename or softwarename==0:  #Source: https://stackoverflow.com/questions/28210060/check-if-value-is-zero-or-not-null-in-python
@@ -367,6 +420,7 @@ class App(customtkinter.CTk):
         else:
             self.logbox.insert('end', f"{timestamp}    Please select a software to start: \n")
         self.logbox.see("end")
+
 
     def extendedsearch_button_event(self):
         #WE must run this a fundtion in the main, if the command on the button is directed to the GUI functions it exciture without click, always!
