@@ -412,7 +412,7 @@ class App(customtkinter.CTk):
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
-        self.entry.configure(text="")
+        #self.entry.configure(text="")
 
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - {logbox_input_blank_error} \n")
