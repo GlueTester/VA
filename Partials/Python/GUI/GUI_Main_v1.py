@@ -1,4 +1,6 @@
-import tkinter
+from tkinter import *
+from tkinter import ttk
+from tkinter.ttk import Progressbar
 #import tkinter.messagebox
 import customtkinter
 import GUI_functions
@@ -12,6 +14,15 @@ import glob #for file search
 import numbers #to see if numbers
 import json
 import re
+import pyi_splash
+
+# Update the text on the splash screen
+pyi_splash.update_text("Loading...")
+
+# Close the splash screen. It does not matter when the call
+# to this function is made, the splash screen remains open until
+# this function is called or the Python program is terminated.
+pyi_splash.close()
 
 #prereq installs
     #pip3 install python-dotenv
@@ -20,6 +31,32 @@ import re
     #pip3 install pypiwin32
     #pip3 install Selenium #https://trm.oit.va.gov/ToolPage.aspx?tid=6440#
     #pip3 install selenium webdriver-manager
+    #pip3 install pyinstaller #Splash screen 
+
+"""
+root= Tk()
+image = PhotoImage(file = "C:\\Users\\VHALEXKingR1\\GIT\VA\\Partials\\Python\\GUI\\wall-e-sitting_small.png")
+height = 430
+width = 530
+x= (root.winfo_screenmmwidth()//2)-(width//2)
+y= (root.winfo_screenheight()//2)-(height//2)
+root.geometry('{}x{}+{}+{}'.format(width, height, x, y))
+root.overrideredirect(True)
+
+root.config(background="#2e9984")
+welcome_label = Label(text="Application Name", bg ="#2e9984", font=("Trebuchet Ms", 15, "bold"), fg="#FFFFFF")
+welcome_label.place(x=x/2, y=y/2)
+
+bg_label = Label(root, image=image, bg="#2e9984")
+bg_label.place(x=130, y=65)
+
+progress_label = Label(root, text="Loading...", font=("Trebuchet Ms", 13, "bold"), fg="#FFFFFF", bg="#2e9984")
+progress_label.place(x=190, y=330)
+
+
+root.resizable(False, False)
+root.mainloop()
+"""
 
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
@@ -41,12 +78,15 @@ with open(var_json) as jsonFile:
 for i in range(len(software_variables)):
     if software_variables[i]["State"] == "enabled":
         software_names.append(software_variables[i]["Name"])
+    elif software_variables[i]["State"] == "disabled":
+       software_names.append(GUI_functions.strike(software_variables[i]["Name"]))
 
     #Extract all enabled driver titles from json and place into new array for combobox
 for i in range(len(drivers_variables)):
     if drivers_variables[i]["State"] == "enabled":
         driver_names.append(drivers_variables[i]["Name"])
-
+    elif drivers_variables[i]["State"] == "disabled":
+        driver_names.append(GUI_functions.strike(drivers_variables[i]["Name"]))
 
 
 program_name = gui_variables["program_name"]
@@ -60,11 +100,11 @@ jumpserver = gui_variables["jumpserver"]
 logoffdir = gui_variables["log_off_dir"]
 deadday = gui_variables["dead_day"]
 currentday = eval(gui_variables["currentday"])
-program_version = 0.2
+program_version = 0.03
 logbox_input_blank_error = gui_variables["logbox_input_blank_error"]
 inputbox_click_blank = gui_variables["inputbox_click_blank"]
 first_log_msg = gui_variables["first_log_msg"]
-
+program_icon = gui_variables["program_icon"]
 
 
 
@@ -83,9 +123,10 @@ customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "gre
 
 class App(customtkinter.CTk):
     admincheck = GUI_functions.has_admin() #see if running as admin
+    
     def __init__(self):
         super().__init__()
-
+        
         # Title change based on version of program compared to current
         if float(current_version) == float(program_version): #if version is the same
             report_version = {gui_variables["current_version"]}
@@ -93,6 +134,7 @@ class App(customtkinter.CTk):
             report_version = (f"You are running version {program_version}, please upgrade to {gui_variables["current_version"]}")
 
         self.title(f"{program_name} - {report_version}")
+        self.iconbitmap(program_icon) #https://stackoverflow.com/questions/33137829/how-to-replace-the-icon-in-a-tkinter-app
         self.geometry(f"{1100}x{800}")
 
         # configure grid layout (4x4)
@@ -424,7 +466,7 @@ class App(customtkinter.CTk):
             #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
+                #self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
                 self.SAM_Text.configure(text=userinfo[0])
                 self.User_Department_Text.configure(text=userinfo[0])
                 self.User_FirstName_Text.configure(text=userinfo[2])
@@ -471,20 +513,9 @@ class App(customtkinter.CTk):
         #WE must run this a fundtion in the main, if the command on the button is directed to the GUI functions it exciture without click, always!
         GUI_functions.extendedsearch_button_event(self, Hostname)
    
-   
-   
-   
-    #def MotherBoardSerial():
-    #    serial = GUI_functions.powercmd(f"MBserial('{Hostname}')")
-    #    self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")
-    #    return serial
-
-#if '_PYIBoot_SPLASH' in os.environ and importlib.util.find_spec("pyi_splash"):  #Source https://stackoverflow.com/questions/48315785/pyinstaller-adding-splash-screen-or-visual-feedback-during-file-extraction
-#    import pyi_splash
-#    pyi_splash.update_text('UI Loaded ...')
-#    pyi_splash.close()
-#    print.info('Splash screen closed.')
-
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
+#Complie line
+#pyinstaller.exe --onefile --name Admin_Tool --noconsole --disable-windowed-traceback --add-binary "eve.ico;." --version-file file_version_info.txt --splash=wall-e-sitting.png --icon=eve.ico --hidden-import=pyi_splash .\GUI_Main_v1.py

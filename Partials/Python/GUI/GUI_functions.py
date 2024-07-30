@@ -83,7 +83,7 @@ def has_admin():
         else:
             return (os.environ['USERNAME'],False)
 
-def  EEtoHostname (EE):
+def EEtoHostname (EE):
     q = pyad.adquery.ADQuery()  #pip3 install pypiwin32
     #Source https://pypi.org/project/pyad/
     q.execute_query(
@@ -95,7 +95,7 @@ def  EEtoHostname (EE):
         if EE in (row["Name"] ):
             return (row["Name"])
 
-def  SAMtoUserinfo (SAM):
+def SAMtoUserinfo (SAM):
     t = pyad.adquery.ADQuery()
     user = SAM
     t.execute_query(
@@ -354,8 +354,17 @@ def search_is_MAC(self, searchfieldinput):
             self.options.add_argument('log-level=3') #https://github.com/SeleniumHQ/selenium/issues/13095
 
             #self.options.set_capability("browserVersion", "117") #https://github.com/SeleniumHQ/selenium/issues/13095
-
+            self.options.add_argument("--remote-debugging-port=8080") #Corrected Mule 1 not opeing port for chrome
             self.driver = webdriver.Chrome(options=self.options)
+            self.options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2}) 
+            self.options.add_argument("--no-sandbox") 
+            self.options.add_argument("--disable-setuid-sandbox") 
+            self.options.add_argument("--disable-dev-shm-using") 
+            self.options.add_argument("--disable-extensions") 
+            self.options.add_argument("--disable-gpu") 
+            self.options.add_argument("start-maximized") 
+            self.options.add_argument("disable-infobars")
+            self.options.add_argument(r"user-data-dir=.\cookies\\test")
 
         def navigate(self, target) -> None:
 
@@ -405,7 +414,7 @@ def search_is_MAC(self, searchfieldinput):
     #Some vars
     username="OITLEXKINGR10"
     password="lockdown00"
-
+    sleeptime = 0
 
     #Go to webpage and ensure it scisco 
     call_manager_page_header = scraper.extract_single_element('cuesLoginProductName', By.CLASS_NAME) #grabs title in page
@@ -414,17 +423,21 @@ def search_is_MAC(self, searchfieldinput):
     scraper.input("j_username",username )
     scraper.input("j_password",password )
     scraper.driver.find_element(By.XPATH,"/html/body/form/div[2]/table[1]/tbody/tr[1]/td[2]/table/tbody/tr[5]/td/button[1]").click() #Login button, used Full XPATH becuase couldnt get other to work #Source 1.https://www.selenium.dev/documentation/webdriver/elements/locators/ | 2.https://stackoverflow.com/questions/65657539/how-to-located-selenium-element-by-css-selector
-
+    time.sleep(sleeptime)
     #ensure we are logged in
     headertext_user = scraper.extract_single_element("cuesHeaderText", By.CLASS_NAME)
-
+    
     if (headertext_user.text != username):  #.text has to be added becuase element was being retun not its content #Source:https://stackoverflow.com/questions/70203815/python-selenium-printing-results-as-selenium-webdriver-remote-webelement-webe
         print (f"Logged in user is:{headertext_user.text}  but the username provide is:{username}")
     else:
         scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/phoneFindList.do') #here we are only search by what the filter are by defualt (Device Name. starts with)
-        scraper.driver.find_element(By.XPATH,'//*[@id="searchLimit0"]/option[2]').click() # select contains as filter     
+        time.sleep(sleeptime)
+        scraper.driver.find_element(By.XPATH,'//*[@id="searchLimit0"]/option[2]').click() # select contains as filter    
+        time.sleep(sleeptime) 
         scraper.input("searchString0",searchitem )
+        time.sleep(sleeptime)
         scraper.driver.find_element(By.XPATH,"/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[7]/input").click()
+        time.sleep(sleeptime)
         last_resistered = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(8)').text
         device_Name_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(3) > a').text
         device_description_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(4)').text
@@ -437,3 +450,9 @@ def search_is_MAC(self, searchfieldinput):
         self.DeviceName_Text.configure(text = device_Name_line)
         self.Description_Text.configure(text = device_description_line) 
         self.Phone_IPV4_Text.configure(text = device_IP_line)
+
+def strike(text): #https://stackoverflow.com/questions/25244454/python-create-strikethrough-strikeout-overstrike-string-type
+    result = ''
+    for c in text:
+        result = result + c + '\u0336'
+    return result+" Under Maintenance"
