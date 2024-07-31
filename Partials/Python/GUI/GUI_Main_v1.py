@@ -14,15 +14,6 @@ import glob #for file search
 import numbers #to see if numbers
 import json
 import re
-import pyi_splash
-
-# Update the text on the splash screen
-pyi_splash.update_text("Loading...")
-
-# Close the splash screen. It does not matter when the call
-# to this function is made, the splash screen remains open until
-# this function is called or the Python program is terminated.
-pyi_splash.close()
 
 #prereq installs
     #pip3 install python-dotenv
@@ -33,31 +24,7 @@ pyi_splash.close()
     #pip3 install selenium webdriver-manager
     #pip3 install pyinstaller #Splash screen 
 
-"""
-root= Tk()
-image = PhotoImage(file = "C:\\Users\\VHALEXKingR1\\GIT\VA\\Partials\\Python\\GUI\\wall-e-sitting_small.png")
-height = 430
-width = 530
-x= (root.winfo_screenmmwidth()//2)-(width//2)
-y= (root.winfo_screenheight()//2)-(height//2)
-root.geometry('{}x{}+{}+{}'.format(width, height, x, y))
-root.overrideredirect(True)
-
-root.config(background="#2e9984")
-welcome_label = Label(text="Application Name", bg ="#2e9984", font=("Trebuchet Ms", 15, "bold"), fg="#FFFFFF")
-welcome_label.place(x=x/2, y=y/2)
-
-bg_label = Label(root, image=image, bg="#2e9984")
-bg_label.place(x=130, y=65)
-
-progress_label = Label(root, text="Loading...", font=("Trebuchet Ms", 13, "bold"), fg="#FFFFFF", bg="#2e9984")
-progress_label.place(x=190, y=330)
-
-
-root.resizable(False, False)
-root.mainloop()
-"""
-
+#Declare location of JSON file
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
 
@@ -369,13 +336,6 @@ class App(customtkinter.CTk):
         self.Phone_IPV4_Text.grid(row=0, column=1, padx=(0,0), pady=(200,0), sticky="w")
 
 
-        
-
-                
-        #Login statas button
-        #self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
-        #self.extendedsearch_button.configure(state="enabled", command=(GUI_functions.extendedsearch_button_event(self, Hostname)))
-
         # set default values
         self.sidebar_button_1.configure(state="enabled", text="Button 1")
         self.sidebar_button_2.configure(state="enabled", text="Button 2")
@@ -391,9 +351,6 @@ class App(customtkinter.CTk):
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
         self.logbox.insert('end', f"{first_log_msg} \n")
 
-
-        #Set as main focus
-        #self.entry.focus_force() 
         self.update() 
 
     def open_input_dialog_event(self):
@@ -454,16 +411,15 @@ class App(customtkinter.CTk):
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
-        #self.entry.configure(text="")
 
         if not searchfieldinput :  #Source: https://stackoverflow.com/questions/10545385/how-to-check-if-a-variable-is-empty-in-python
             self.logbox.insert('end', f"{timestamp}    {program_name} - {logbox_input_blank_error} \n")
         else:
-            #Computer - get for only didgits like an EE
+            # Search thinks its a Computer (Logic: only numbers)
             if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
                 Hostname = GUI_functions.Search_is_Computer(self, searchfieldinput)
           
-            #Should the entered data NOT be a set of numbers and CONTAIN "VHA" it must be a user name
+            # Search thinks its a User (Logic: contains VHA)
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
                 #self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
@@ -476,7 +432,7 @@ class App(customtkinter.CTk):
                 self.User_Title_Text.configure(text=userinfo[1])  
                 self.User_Manager_Text.configure(text=userinfo[6].split('CN=',1)[1].split(',OU',2)[0].replace("\\","")) #https://www.geeksforgeeks.org/python-string-split/
             
-            #If MAC address
+            # Search thinks its a MAC (Logic: Is 4 charcters that are only hexadecimal)
             elif re.match("[0-9a-f]{4}$",searchfieldinput.lower()): #Source: https://stackoverflow.com/questions/7629643/how-do-i-validate-the-format-of-a-mac-address
 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - \"{searchfieldinput}\" looks like a MAC, checking Call Manager\n")
@@ -487,6 +443,7 @@ class App(customtkinter.CTk):
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
         
         self.logbox.see("end")
+        
         #reenable search button
         self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
 
