@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 import pyad.adquery # pip3 install pyad
 
-
+#Declare location of JSON file
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
 
@@ -95,7 +95,7 @@ def EEtoHostname (EE):
         if EE in (row["Name"] ):
             return (row["Name"])
 
-def SAMtoUserinfo (SAM):
+def SAMtoUserinfo (self, SAM):
     t = pyad.adquery.ADQuery()
     user = SAM
     t.execute_query(
@@ -105,35 +105,26 @@ def SAMtoUserinfo (SAM):
         base_dn = "DC=v09,DC=med,DC=va,DC=gov"
     )
     for row in t.get_results():
-        print (row)
-        department = row["Department"]
-        title = row["title"]
-        displayname = row["DisplayName"]
-        emailaddress = row["mail"]
-        enabled = row["Enabled"]
-        info = row["info"]
-        #lastlogondate = row["lastlogondate"]
-        #lockedout = row["LockedOut"]
-        #
-        manager = row["Manager"]
-        #name = row["Name"]
-        #enabled = row["Enabled"]
-        #passwordnotrequired = row["PasswordNotRequired"]
-  
-    return department,title,displayname,emailaddress,enabled,info,manager#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
-        
-def pingback(Hostname):
-    ping = subprocess.Popen(
-        ["ping", "-n", "1", "-4", Hostname],
-        #["ping", "-n", "1", Hostname],
-        stdout = subprocess.PIPE,
-        stderr = subprocess.PIPE
-    )
-    out, error = ping.communicate()
+            print (row)
+            department = row["Department"]
+            title = row["title"]
+            displayname = row["DisplayName"]
+            emailaddress = row["mail"]
+            enabled = row["Enabled"]
+            info = row["info"]
+            #lastlogondate = row["lastlogondate"]
+            #lockedout = row["LockedOut"]
+            #
+            manager = row["Manager"]
+            #name = row["Name"]
+            #enabled = row["Enabled"]
+            #passwordnotrequired = row["PasswordNotRequired"]
+    try:
+        return department,title,displayname,emailaddress,enabled,info,manager#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
+    except:
+        print()
+        #self.logbox.insert('end', f"{timestamp}    {self.program_name} - Could not find a user like {self.searchfieldinput} \n")
 
-    packsrecieved = str(out).find("Received = 1")
-    ip = (socket.gethostbyname(Hostname))
-    return (packsrecieved ,ip)
      
 def ping(Hostname):
     try: 
@@ -228,48 +219,6 @@ def MotherBoardSerial(Hostname):
     #self.logbox.insert('end', f"{timestamp}    {program_name} - Mahcien Motherboard serial: {serial} \n")
     return serial
 
-def Search_is_Computer(self, searchfieldinput):
-    self.tabview.set("Computer")#change active tab to the "user tab"
-    self.update()
-    Hostname = EEtoHostname(searchfieldinput)
-    self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for {searchfieldinput} \n")
-    if Hostname or Hostname == 0:
-        self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
-        self.HostnameText.configure(text=Hostname)   
-
-
-        self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
-        pingreply = ping(Hostname)
-        
-        if pingreply == "Offline":
-            self.StatusText.configure(text="Offline", text_color="red")  
-            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
-
-        elif (pingreply == "Cant get IP of machine"):
-            self.StatusText.configure(text="Offline", text_color="red")  
-            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
-
-        else:
-            self.StatusText.configure(text="Online", text_color="green")
-            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
-            self.IPText.configure(text=pingreply)
-            if self.admincheck[1] == True: #ensure vaule is True aka admin
-                pcrunningscript = socket.gethostname()
-                if  pcrunningscript == jumpserver:
-                    self.MBSerialText.configure(text=MotherBoardSerial(Hostname))
-            elif self.admincheck[1] == False:
-                self.MBSerialText.configure(text="Run as admin to enable")
-            else:
-                self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
-            self.OUtext.configure(text="Extended Option")
-            self.EnabledText.configure(text="Extended Option", text_color="black")
-            self.LocationText.configure(text="Extended Option")
-            self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
-            self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
-            return Hostname
-    else :
-        self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
-
 def extendedsearch_button_event(self, Hostname):
     
     self.logbox.insert('end', f"{timestamp}    {program_name} - Extended search started on {Hostname} \n")
@@ -324,11 +273,79 @@ def extendedsearch_button_event(self, Hostname):
     #reenable search button
     
     self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
-    
+
+def clearthefield(self):
+        self.StatusText.configure(text="", text_color="black")
+        self.HostnameText.configure(text="")
+        self.OUtext.configure(text="")
+        self.StatusText.configure(text="")
+        self.IPText.configure(text="")
+        self.EnabledText.configure(text="", text_color="black")
+        self.LocationText.configure(text="")
+        self.MBSerialText.configure(text="")
+        self.logbox.see("end")
+        self.LastRegistered_Text.configure(text="")
+        self.PhoneStatus_Text.configure(text="")
+        self.DeviceName_Text.configure(text="")
+        self.Description_Text.configure(text="")
+        self.Phone_IPV4_Text.configure(text="")
+        self.SAM_Text.configure(text="")
+        self.User_Department_Text.configure(text="")
+        self.User_FirstName_Text.configure(text="")
+        self.User_Email_Text.configure(text="")
+        self.User_Enabled_Text.configure(text="")
+        self.User_TourOfDuty_Text.configure(text="")
+        self.User_Title_Text.configure(text="")
+        self.User_Manager_Text.configure(text="")
+
+# Fileds the the Main search can identify and preform action
+def Search_is_Computer(self, searchfieldinput):
+    self.tabview.set("Computer")#change active tab to the "user tab"
+    self.update()
+    Hostname = EEtoHostname(searchfieldinput)
+    self.logbox.insert('end', f"{timestamp}    {program_name} - Searched for {searchfieldinput} \n")
+    if Hostname or Hostname == 0:
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Found {Hostname} \n")
+        self.HostnameText.configure(text=Hostname)   
+
+
+        self.logbox.insert('end', f"{timestamp}    {program_name} - Checking if {Hostname} is Online \n")
+        pingreply = ping(Hostname)
+        
+        if pingreply == "Offline":
+            self.StatusText.configure(text="Offline", text_color="red")  
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+
+        elif (pingreply == "Cant get IP of machine"):
+            self.StatusText.configure(text="Offline", text_color="red")  
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Offline \n")
+
+        else:
+            self.StatusText.configure(text="Online", text_color="green")
+            self.logbox.insert('end', f"{timestamp}    {program_name} - {Hostname} is Online \n") 
+            self.IPText.configure(text=pingreply)
+            if self.admincheck[1] == True: #ensure vaule is True aka admin
+                pcrunningscript = socket.gethostname()
+                if  pcrunningscript == jumpserver:
+                    self.MBSerialText.configure(text=MotherBoardSerial(Hostname))
+            elif self.admincheck[1] == False:
+                self.MBSerialText.configure(text="Run as admin to enable")
+            else:
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Not running as admin. Running {program_name} as:{self.admincheck[0]}, weird \n")
+            self.OUtext.configure(text="Extended Option")
+            self.EnabledText.configure(text="Extended Option", text_color="black")
+            self.LocationText.configure(text="Extended Option")
+            self.logstats_button.configure(state="enabled", text="Open Login stats", fg_color=self.sidebar_button_1._fg_color, text_color="white")
+            self.extendedsearch_button.configure(state="enabled", text="Extended Search",fg_color=self.sidebar_button_1._fg_color, text_color="white" )
+            return Hostname
+    else :
+        self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
+       
 def Search_is_SAM(self,searchfieldinput):
     self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
     self.tabview.set("User")#change active tab to the "user tab"
-    whatigot = SAMtoUserinfo(searchfieldinput)
+    whatigot = SAMtoUserinfo(self, searchfieldinput)
+
     return whatigot
 
 def search_is_MAC(self, searchfieldinput):
@@ -451,7 +468,9 @@ def search_is_MAC(self, searchfieldinput):
         self.Description_Text.configure(text = device_description_line) 
         self.Phone_IPV4_Text.configure(text = device_IP_line)
 
-def strike(text): #https://stackoverflow.com/questions/25244454/python-create-strikethrough-strikeout-overstrike-string-type
+
+def strike(text): #enables use to pass text to and have it rewritten as strike through
+    #https://stackoverflow.com/questions/25244454/python-create-strikethrough-strikeout-overstrike-string-type
     result = ''
     for c in text:
         result = result + c + '\u0336'

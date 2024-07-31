@@ -377,37 +377,10 @@ class App(customtkinter.CTk):
     def return_pressed(self, event):
         self.searchclick()
         self.logbox.see("end")
-
-
-    def clearthefield(self):
-        self.StatusText.configure(text="", text_color="black")
-        self.HostnameText.configure(text="")
-        self.OUtext.configure(text="")
-        self.StatusText.configure(text="")
-        self.IPText.configure(text="")
-        self.EnabledText.configure(text="", text_color="black")
-        self.LocationText.configure(text="")
-        self.MBSerialText.configure(text="")
-        self.logbox.see("end")
-        self.LastRegistered_Text.configure(text="")
-        self.PhoneStatus_Text.configure(text="")
-        self.DeviceName_Text.configure(text="")
-        self.Description_Text.configure(text="")
-        self.Phone_IPV4_Text.configure(text="")
-        self.SAM_Text.configure(text="")
-        self.User_Department_Text.configure(text="")
-        self.User_FirstName_Text.configure(text="")
-        self.User_Email_Text.configure(text="")
-        self.User_Enabled_Text.configure(text="")
-        self.User_TourOfDuty_Text.configure(text="")
-        self.User_Title_Text.configure(text="")
-        self.User_Manager_Text.configure(text="")
-        
-       
-
+    
     def searchclick(self):
         self.main_button_1.configure(state="disabled",text="Please wait...")
-        self.clearthefield()
+        GUI_functions.clearthefield(self)
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
@@ -423,14 +396,18 @@ class App(customtkinter.CTk):
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
                 #self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
-                self.SAM_Text.configure(text=userinfo[0])
-                self.User_Department_Text.configure(text=userinfo[0])
-                self.User_FirstName_Text.configure(text=userinfo[2])
-                self.User_Email_Text.configure(text=userinfo[3])
-                #self.User_Enabled_Text.configure(text=userinfo[4])
-                self.User_TourOfDuty_Text.configure(text=userinfo[5].split('\n',1)[1])
-                self.User_Title_Text.configure(text=userinfo[1])  
-                self.User_Manager_Text.configure(text=userinfo[6].split('CN=',1)[1].split(',OU',2)[0].replace("\\","")) #https://www.geeksforgeeks.org/python-string-split/
+                try:
+                    self.SAM_Text.configure(text=userinfo[0])
+                    self.User_Department_Text.configure(text=userinfo[0])
+                    self.User_FirstName_Text.configure(text=userinfo[2])
+                    self.User_Email_Text.configure(text=userinfo[3])
+                    #self.User_Enabled_Text.configure(text=userinfo[4])
+                    self.User_TourOfDuty_Text.configure(text=userinfo[5].split('\n',1)[1])
+                    self.User_Title_Text.configure(text=userinfo[1])  
+                    self.User_Manager_Text.configure(text=userinfo[6].split('CN=',1)[1].split(',OU',2)[0].replace("\\","")) #https://www.geeksforgeeks.org/python-string-split/
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - Found user \n")
+                except :
+                    self.logbox.insert('end', f"{timestamp}    {program_name} - Completed search {searchfieldinput} \n")
             
             # Search thinks its a MAC (Logic: Is 4 charcters that are only hexadecimal)
             elif re.match("[0-9a-f]{4}$",searchfieldinput.lower()): #Source: https://stackoverflow.com/questions/7629643/how-do-i-validate-the-format-of-a-mac-address
