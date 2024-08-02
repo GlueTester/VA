@@ -122,7 +122,8 @@ def SAMtoUserinfo (self, SAM):
     try:
         return department,title,displayname,emailaddress,enabled,info,manager#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
     except:
-        print()
+        pass
+        #print()
         #self.logbox.insert('end', f"{timestamp}    {self.program_name} - Could not find a user like {self.searchfieldinput} \n")
 
      
@@ -342,13 +343,13 @@ def Search_is_Computer(self, searchfieldinput):
         self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
        
 def Search_is_SAM(self,searchfieldinput):
-    self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
-    self.tabview.set("User")#change active tab to the "user tab"
+    #self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
+    #self.tabview.set("User")#change active tab to the "user tab"
     whatigot = SAMtoUserinfo(self, searchfieldinput)
 
     return whatigot
 
-def search_is_MAC(self, searchfieldinput):
+def search_is_MAC(self, searchfieldinput): #workhorse for mac finding of phones
     self.tabview.set("Phones")#change active tab to the "user tab"
     self.update() 
 
