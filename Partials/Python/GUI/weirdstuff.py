@@ -24,7 +24,7 @@ def make_calculation_three(numbers):
 
 
 if __name__ == '__main__':
-    number_list = list(range(5000000))
+    number_list = list(range(10000000))
     p1 = mp.Process(target=make_calculation_one, args=(number_list,))
     p2 = mp.Process(target=make_calculation_two, args=(number_list,))
     p3 = mp.Process(target=make_calculation_three, args=(number_list,))
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     end = time.time()
 
     print (end-start)
-print ("done")
+
 
 
 #

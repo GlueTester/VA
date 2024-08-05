@@ -1,38 +1,16 @@
-software = {
-"ParEx": 
-    {
-       "state": "enabled",
+from tkinter import *
+import webbrowser
 
-       "Version": "1.0",
+def callback(url):
+    webbrowser.open_new(url)
 
-       "path": "vhalex.med.gov-somedir-parexc1.ps1"
+root = Tk()
+link1 = Label(root, text="Hyperlink", fg="blue", cursor="hand1")
+link1.pack()
+link1.bind("<Button-1>", lambda e: callback("http://www.example.com"))
 
-    },
-"ClintaComp":
-    { 
-        "state": "enabled",
- 
-        "Version": "1.3",
- 
-        "path": "vhalex.med.gov-somedir-parexc1.ps1"
- 
-     }
-},
+link2 = Label(root, text="Hyperlink", fg="blue", cursor="hand2")
+link2.pack()
+link2.bind("<Button-1>", lambda e: callback("http://www.example.org"))
 
-drivers = {
-"Smart Card":
-    {
-
-       "state": "enabled",
-
-       "Version": "2.0",
-
-       "path": "vhalex.med.gov-somedir-smartcard2.ps1"
-
-    }
-}
-#json.dumps(software)
-#print(json.dumps(software, sort_keys=True))
-
-json.load(file object)
-print(json.dumps(drivers, sort_keys = True))
+root.mainloop()

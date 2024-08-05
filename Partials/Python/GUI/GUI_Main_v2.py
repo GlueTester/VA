@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter.ttk import Progressbar
 #import tkinter.messagebox
 import customtkinter
-import GUI_functions
+import GUI_functions2
 import time
 import subprocess, sys
 import os
@@ -14,7 +14,7 @@ import glob #for file search
 import numbers #to see if numbers
 import json
 import re
-import getpass
+import multiprocessing as mp
 
 #prereq installs
     #pip3 install python-dotenv
@@ -28,7 +28,7 @@ import getpass
 #Declare location of JSON file
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
 
-
+https://cfm.vssc.med.va.gov/dbr/main.cfm
 #Create empty arrays
 software_variables, drivers_variables, software_names, driver_names = ([] for i in range(4))
 
@@ -41,23 +41,20 @@ with open(var_json) as jsonFile:
         software_variables.append(result)
     for result in data['Drivers']:
         drivers_variables.append(result)
-    for result in data['Links']:
-        a = json.dumps( result, indent=4)
-        links_variables = json.loads(a)
 
     #Extract all enabled software titles from json and place into new array for combobox
 for i in range(len(software_variables)):
     if software_variables[i]["State"] == "enabled":
         software_names.append(software_variables[i]["Name"])
     elif software_variables[i]["State"] == "disabled":
-       software_names.append(GUI_functions.strike(software_variables[i]["Name"]))
+       software_names.append(GUI_functions2.strike(software_variables[i]["Name"]))
 
     #Extract all enabled driver titles from json and place into new array for combobox
 for i in range(len(drivers_variables)):
     if drivers_variables[i]["State"] == "enabled":
         driver_names.append(drivers_variables[i]["Name"])
     elif drivers_variables[i]["State"] == "disabled":
-        driver_names.append(GUI_functions.strike(drivers_variables[i]["Name"]))
+        driver_names.append(GUI_functions2.strike(drivers_variables[i]["Name"]))
 
 
 program_name = gui_variables["program_name"]
@@ -76,7 +73,6 @@ logbox_input_blank_error = gui_variables["logbox_input_blank_error"]
 inputbox_click_blank = gui_variables["inputbox_click_blank"]
 first_log_msg = gui_variables["first_log_msg"]
 program_icon = gui_variables["program_icon"]
-#cyberarc_link = links_variables["CyberArc"]
 
 
 
@@ -94,11 +90,10 @@ customtkinter.set_appearance_mode("System")  # Modes: "System" (standard), "Dark
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
 class App(customtkinter.CTk):
-    admincheck = GUI_functions.has_admin() #see if running as admin
+    admincheck = GUI_functions2.has_admin() #see if running as admin
     
     def __init__(self):
         super().__init__()
-        
         # Title change based on version of program compared to current
         if float(current_version) == float(program_version): #if version is the same
             report_version = {gui_variables["current_version"]}
@@ -107,7 +102,7 @@ class App(customtkinter.CTk):
 
         self.title(f"{program_name} - {report_version}")
         self.iconbitmap(program_icon) #https://stackoverflow.com/questions/33137829/how-to-replace-the-icon-in-a-tkinter-app
-        self.geometry(f"{1100}x{950}")
+        self.geometry(f"{1100}x{800}")
 
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -116,74 +111,37 @@ class App(customtkinter.CTk):
         #self.grid_rowconfigure(3, weight=1)
 
         # create sidebar frame with widgets
-        self.sidebar_frame = customtkinter.CTkFrame(self,fg_color="transparent")#, width=120)#, corner_radius=35)
+        self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=35)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, padx=5, pady=(25, 0), sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
-   
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Programs", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, command=self.sidebar_button_event)
+        self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
 
-        #sidebar - Programs
-        self.programs_frame = customtkinter.CTkFrame(self.sidebar_frame, width=120, corner_radius=35)
-        self.programs_frame.grid(row=0, column=0, padx=5, pady=(0, 5), sticky="nsew")
-        self.programs_frame.grid_rowconfigure(4, weight=1)
-        self.programs_logo_label = customtkinter.CTkLabel(self.programs_frame, text="Programs", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.programs_logo_label.grid(row=0, column=0, padx=20, pady=(20, 10),sticky="new")
-        self.program_button_1 = customtkinter.CTkButton(self.programs_frame, command=self.program_button_event)
-        self.program_button_1.grid(row=0, column=0, padx=20, pady=70, sticky="new")
-        self.program_button_2 = customtkinter.CTkButton(self.programs_frame, command=self.program_button_event)
-        self.program_button_2.grid(row=0, column=0, padx=20, pady=120, sticky="new")
-        self.program_button_3 = customtkinter.CTkButton(self.programs_frame, command=self.program_button_event)
-        self.program_button_3.grid(row=0, column=0, padx=20, pady=170, sticky="new")
-
-        #sidebar - Admin Credentials frame
-        self.account_credentials_frame = customtkinter.CTkFrame(self.sidebar_frame, width=120, corner_radius=35)
-        self.account_credentials_frame.grid(row=1, column=0, padx=5, pady=(0, 5), sticky="nsew")
-        self.account_credentials_frame.grid_rowconfigure(4, weight=1)
-        self.account_credentials_logo_label = customtkinter.CTkLabel(self.account_credentials_frame, text="Admin Credentials", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.account_credentials_logo_label.grid(row=0, column=0, padx=20, pady=(5),sticky="new")
-        
-        self.admin_username = customtkinter.CTkEntry(self.account_credentials_frame)
-        self.admin_username.insert(0,getpass.getuser()+"0")
-        self.admin_username.grid(row=1, column=0 , padx=(20), pady=(5, 10), sticky="NW")
-
-        self.admin_pass = customtkinter.CTkEntry(self.account_credentials_frame, show="*", placeholder_text="CyberArc pass")
-        self.admin_pass.grid(row=1, column=0 , padx=(20), pady=(35, 10), sticky="NW")
-        
-        #sidebar - Quick Links frame
-        self.quick_links_frame = customtkinter.CTkFrame(self.sidebar_frame, width=120, corner_radius=35)
-        self.quick_links_frame.grid(row=2, column=0, padx=5, pady=(0, 5), sticky="nsew")
-        self.quick_links_frame.grid_rowconfigure(4, weight=1)
-        self.quick_links_frame.grid_columnconfigure(2, weight=1)
-
-        self.quick_links_label = customtkinter.CTkLabel(self.quick_links_frame, width=120,text="Quick Links", font=customtkinter.CTkFont(size=20, weight="bold"))
-        self.quick_links_label.grid(row=0, column=0, padx=20, pady=(5, 20),sticky="new")
-        self.cyberarc_button =  customtkinter.CTkButton(self.quick_links_frame,text="CyberArc",fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"), command = self.cyberarc_linkopen)
-        self.cyberarc_button.grid(row=1, column=0, padx=(20,0), pady=(0,5),sticky="new")
-        self.itsuggestions_button =  customtkinter.CTkButton(self.quick_links_frame,text="IT Suggestions",fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"), command = self.itsuggestions_linkopen)
-        self.itsuggestions_button.grid(row=1, column=0, padx=(20,0), pady=(35,20),sticky="new")
-
-
-        
-        #sidebar - Apperance
-        self.apperance_frame = customtkinter.CTkFrame(self.sidebar_frame, width=120, corner_radius=35)
-        self.apperance_frame.grid(row=5, column=0, padx=5, pady=(0, 0), sticky="nsew")
-        self.apperance_frame.grid_rowconfigure(4, weight=1)
-        self.appearance_mode_label = customtkinter.CTkLabel(self.apperance_frame, text="Appearance Mode:", anchor="w")
+        #contue with witdges
+        self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.apperance_frame, values=["Light", "Dark", "System"], command=self.change_appearance_mode_event)
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Light", "Dark", "System"],
+                                                                       command=self.change_appearance_mode_event)
         self.appearance_mode_optionemenu.grid(row=6, column=0, padx=20, pady=(10, 10))
-        self.scaling_label = customtkinter.CTkLabel(self.apperance_frame, text="UI Scaling:", anchor="w")
+        self.scaling_label = customtkinter.CTkLabel(self.sidebar_frame, text="UI Scaling:", anchor="w")
         self.scaling_label.grid(row=7, column=0, padx=20, pady=(10, 0))
-        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.apperance_frame, values=["80%", "90%", "100%", "110%", "120%"], command=self.change_scaling_event)
+        self.scaling_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["80%", "90%", "100%", "110%", "120%"],
+                                                               command=self.change_scaling_event)
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
-
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text = inputbox_click_blank ,  validatecommand=(GUI_functions.callback, '%P'),width=250)
+        self.entry = customtkinter.CTkEntry(self, placeholder_text = inputbox_click_blank ,  validatecommand=(GUI_functions2.callback, '%P'),width=250)
         self.entry.grid(row=4, column=1 , padx=(20, 0), pady=(20, 10), sticky="sw")
         self.entry.bind("<Return>", self.return_pressed) #Allows ENTER key to start search
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"),command=self.searchclick)
         self.main_button_1.grid(row=4, column=1, padx=(275, 20), pady=(20, 10), sticky="sw")
-        
+       
 
         #Create Extended Search Button
         self.extendedsearch_button = customtkinter.CTkButton(master=self,state="disabled",text="", fg_color="transparent",command=self.extendedsearch_button_event)
@@ -191,12 +149,12 @@ class App(customtkinter.CTk):
 
         # create Logbox
         self.logbox = customtkinter.CTkTextbox(self, width=250, height=150)
-        self.logbox.grid(row=3, column=1,columnspan=2, padx=(0, 20), pady=(20, 0), sticky="sew")
+        self.logbox.grid(row=3, column=1,columnspan=2, padx=(10, 10), pady=(20, 0), sticky="sew")
 
 
         # create tabview for main
         self.tabview = customtkinter.CTkTabview(self, width=250,height=470,corner_radius=25)
-        self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(0, 20), pady=(10, 0), sticky="nsew")
+        self.tabview.grid(row=0,rowspan=3, column=1,columnspan=2, padx=(0, 0), pady=(10, 0), sticky="nsew")
         self.tabview.add("Computer")
         self.tabview.add("User")
         self.tabview.add("Printer")
@@ -379,20 +337,16 @@ class App(customtkinter.CTk):
 
 
         # set default values
-        self.program_button_1.configure(state="enabled", text="Button 1")
-        self.program_button_2.configure(state="enabled", text="Button 2")
-        self.program_button_3.configure(state="disabled", text="Disabled Button")
+        self.sidebar_button_1.configure(state="enabled", text="Button 1")
+        self.sidebar_button_2.configure(state="enabled", text="Button 2")
+        self.sidebar_button_3.configure(state="disabled", text="Disabled Button")
         self.logstats_button.configure(state="disabled", text="")
         self.appearance_mode_optionemenu.set("Dark")
         self.scaling_optionemenu.set("100%")
-
-
+        
         if self.admincheck[1] == False: 
-           # self.admin_username_non_zero_entry.configure(placeholder_text="no admin")
             self.SpecailtySearch.configure(state="disabled", text="Run as admin to enable")
             self.Software_Search.configure(state="disabled", text="Run as admin to enable")
-        #else:
-           # self.admin_username_non_zero_entry.configure(placeholder_text="is admin")
         self.tabview2._segmented_button._buttons_dict["Magic Fix"].configure(state="disabled")     
         self.logbox.insert("0.0", "Log Box\n\n" )#+ "This is an output.\n\n")
         self.logbox.insert('end', f"{first_log_msg} \n")
@@ -410,10 +364,10 @@ class App(customtkinter.CTk):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
 
-    def program_button_event(self):
+    def sidebar_button_event(self):
         self.tabview.tab("Computer")
         self.switcher = customtkinter.CTkLabel(self.tabview.tab("Computer"))
-        print("program_button click")
+        print("sidebar_button click")
 
 
     def logstats_button_event(self):
@@ -426,7 +380,7 @@ class App(customtkinter.CTk):
     
     def searchclick(self):
         self.main_button_1.configure(state="disabled",text="Please wait...")
-        GUI_functions.clearthefield(self)
+        GUI_functions2.clearthefield(self)
         self.update()
         global Hostname, searchfieldinput 
         searchfieldinput = self.entry.get()
@@ -436,13 +390,13 @@ class App(customtkinter.CTk):
         else:
             # Search thinks its a Computer (Logic: only numbers)
             if (searchfieldinput.isdigit()): #https://stackoverflow.com/questions/21388541/how-do-you-check-in-python-whether-a-string-contains-only-numbers
-                Hostname = GUI_functions.Search_is_Computer(self, searchfieldinput)
+                Hostname = GUI_functions2.Search_is_Computer(self, searchfieldinput)
           
             # Search thinks its a User (Logic: contains VHA)
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
-                userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
-                adcertinfo = GUI_functions.adusercert(self, searchfieldinput )
-                print (adcertinfo)
+                #p1 = mp.Process(target=make_calculation_one, args=(number_list,))
+                userinfo = mp.Process(target=GUI_functions2.Search_is_SAM, args=(self, searchfieldinput))
+                userinfo.start()
                 #self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
                 try:
                     self.SAM_Text.configure(text=userinfo[0])
@@ -453,9 +407,7 @@ class App(customtkinter.CTk):
                     self.User_TourOfDuty_Text.configure(text=userinfo[5].split('\n',1)[1])
                     self.User_Title_Text.configure(text=userinfo[1])  
                     self.User_Manager_Text.configure(text=userinfo[6].split('CN=',1)[1].split(',OU',2)[0].replace("\\","")) #https://www.geeksforgeeks.org/python-string-split/
-                    
                     self.logbox.insert('end', f"{timestamp}    {program_name} - Found user \n")
-                    
                 except :
                     self.logbox.insert('end', f"{timestamp}    {program_name} - Completed search {searchfieldinput} \n")
             
@@ -463,12 +415,9 @@ class App(customtkinter.CTk):
             elif re.match("[0-9a-f]{4}$",searchfieldinput.lower()): #Source: https://stackoverflow.com/questions/7629643/how-do-i-validate-the-format-of-a-mac-address
 
                 self.logbox.insert('end', f"{timestamp}    {program_name} - \"{searchfieldinput}\" looks like a MAC, checking Call Manager\n")
-                if self.admin_pass.get() :
-                    result = GUI_functions.search_is_MAC(self, searchfieldinput, self.admin_username.get(), self.admin_pass.get())
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - Finished, Disconnected from Call Manager\n")
-                else:
-                    self.admin_pass.get()
-                    self.logbox.insert('end', f"{timestamp}    {program_name} - Please provide Call Manager User/Pass on sidebar\n")
+                result = GUI_functions2.search_is_MAC(self, searchfieldinput)
+                self.logbox.insert('end', f"{timestamp}    {program_name} - Finished, Disconnected from Call Manager\n")
+
             else:
                 self.logbox.insert('end', f"{timestamp}    {program_name} - Im not familiar with what you have typed - {program_name} ----{searchfieldinput} \n")
         
@@ -498,13 +447,7 @@ class App(customtkinter.CTk):
 
     def extendedsearch_button_event(self):
         #WE must run this a fundtion in the main, if the command on the button is directed to the GUI functions it exciture without click, always!
-        GUI_functions.extendedsearch_button_event(self, Hostname)
-
-    def cyberarc_linkopen(self):
-        GUI_functions.callback(links_variables["CyberArc"])
-    
-    def itsuggestions_linkopen(self):
-        GUI_functions.callback(links_variables["IT Suggestions"])
+        GUI_functions2.extendedsearch_button_event(self, Hostname)
    
 if __name__ == "__main__":
     app = App()

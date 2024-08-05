@@ -14,7 +14,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 import pyad.adquery # pip3 install pyad
-import webbrowser
 
 #Declare location of JSON file
 var_json = "//v09.med.va.gov/LEX/Service/IMS/Software/AdminTool/var.json"
@@ -62,7 +61,6 @@ inputbox_click_blank = gui_variables["inputbox_click_blank"]
 first_log_msg = gui_variables["first_log_msg"]
 envfile = "C:\\temp\\.env"
 
-
 #if not os.path.exists(envfile):   #create if not exist https://stackoverflow.com/questions/35807605/create-a-file-if-it-doesnt-exist
 #    open(".env", "x") close() # creates the file
 if not os.path.exists(envfile):
@@ -101,7 +99,7 @@ def SAMtoUserinfo (self, SAM):
     t = pyad.adquery.ADQuery()
     user = SAM
     t.execute_query(
-        attributes = ["Department","title","DisplayName","mail","enabled","info","Manager","usercertificate"],#"lastlogondate"],#,"LockedOut","Manager","Name","PasswordNotRequired"],#"SamAccountName","SID","StreetAddress","telephoneNumber","Title","whenCreated"],
+        attributes = ["Department","title","DisplayName","mail","Enabled","info","Manager"],#"lastlogondate"],#,"LockedOut","Manager","Name","PasswordNotRequired"],#"SamAccountName","SID","StreetAddress","telephoneNumber","Title","whenCreated"],
         #attributes = ["Department","Description","DisplayName","mail","Enabled","info","LastLogonDate","LockedOut","Manager","Name","PasswordNotRequired","SamAccountName","SID","StreetAddress","telephoneNumber","Title","whenCreated"],
         where_clause = f"SamAccountName = '{user}'",
         base_dn = "DC=v09,DC=med,DC=va,DC=gov"
@@ -112,9 +110,8 @@ def SAMtoUserinfo (self, SAM):
             title = row["title"]
             displayname = row["DisplayName"]
             emailaddress = row["mail"]
-            enabled = row["enabled"]
+            enabled = row["Enabled"]
             info = row["info"]
-            #certificate = row["usercertificate"]
             #lastlogondate = row["lastlogondate"]
             #lockedout = row["LockedOut"]
             #
@@ -122,9 +119,8 @@ def SAMtoUserinfo (self, SAM):
             #name = row["Name"]
             #enabled = row["Enabled"]
             #passwordnotrequired = row["PasswordNotRequired"]
-            
     try:
-        return department,title,displayname,emailaddress,enabled,info,manager#,certificate#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
+        return department,title,displayname,emailaddress,enabled,info,manager#,lastlogondate#,lockedout#,manager#,name,passwordnotrequired
     except:
         pass
         #print()
@@ -177,8 +173,6 @@ def powershellcmd(command):
     # pingout = powershellcmd("ping LEX-LT110184")
     # print (f"{pingout}")
 
-
-
 def VlanLookup(pingreply):
     #print(F"Ping reply: {pingreply}")
     proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)}"], stdout=subprocess.PIPE)
@@ -214,23 +208,6 @@ def powercmd(psdef):
         proc.kill()
         outs, errs = proc.communicate()  
     #print(F"Outside try: {outs}")
-
-def adusercert(self, SAM):
-    proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; usercert('{SAM}')"], stdout=subprocess.PIPE)
-    #print (["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)} "])
-    try:
-        outs, errs = proc.communicate(timeout=15)
-        #print(F"Befor decode: {outs}")
-        out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
-        #print(F"After decode: {out}")
-        vlanresult = out
-        #print(F"results: {vlanresult}")
-        return vlanresult
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        outs, errs = proc.communicate()  
-    #print(F"Outside try: {outs}")
-
 
 def callback(self, P):
     if str.isdigit(P) or str(P) == "":
@@ -366,135 +343,132 @@ def Search_is_Computer(self, searchfieldinput):
         self.logbox.insert('end', f"{timestamp}    {program_name} - No Machine Found matching {searchfieldinput} \n")
        
 def Search_is_SAM(self,searchfieldinput):
-    self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
-    self.tabview.set("User")#change active tab to the "user tab"
+    #self.logbox.insert('end', f"{timestamp}    {program_name} - Searching for a User - {searchfieldinput.upper()}  \n")
+    #self.tabview.set("User")#change active tab to the "user tab"
     whatigot = SAMtoUserinfo(self, searchfieldinput)
 
     return whatigot
 
-def search_is_MAC(self, searchfieldinput , adminuser , adminpass): #workhorse for mac finding of phones
-    try:
-        self.tabview.set("Phones")#change active tab to the "user tab"
-        self.update() 
+def search_is_MAC(self , searchfieldinput , adminuser , adminpass): #workhorse for mac finding of phones
+    self.tabview.set("Phones")#change active tab to the "user tab"
+    self.update() 
 
-        class Scraper:
+    class Scraper:
 
-            def __init__(self, headless: bool = True) -> None:
+        def __init__(self, headless: bool = True) -> None:
 
-                self.headless = headless
+            self.headless = headless
 
-                pass
+            pass
 
-            def setup_scraper(self) -> None:
+        def setup_scraper(self) -> None:
 
-                self.options = Options()
+            self.options = Options()
 
-                self.options.add_argument("--headless=new",) #https://www.selenium.dev/blog/2023/headless-is-going-away/
+            self.options.add_argument("--headless=new",) #https://www.selenium.dev/blog/2023/headless-is-going-away/
 
-                self.options.add_experimental_option('excludeSwitches', ['enable-logging']) #https://stackoverflow.com/questions/47392423/python-selenium-devtools-listening-on-ws-127-0-0-1
-                
-                self.options.add_argument('log-level=3') #https://github.com/SeleniumHQ/selenium/issues/13095
-
-                #self.options.set_capability("browserVersion", "117") #https://github.com/SeleniumHQ/selenium/issues/13095
-                self.options.add_argument("--remote-debugging-port=8080") #Corrected Mule 1 not opeing port for chrome
-                self.driver = webdriver.Chrome(options=self.options)
-                self.options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2}) 
-                self.options.add_argument("--no-sandbox") 
-                self.options.add_argument("--disable-setuid-sandbox") 
-                self.options.add_argument("--disable-dev-shm-using") 
-                self.options.add_argument("--disable-extensions") 
-                self.options.add_argument("--disable-gpu") 
-                self.options.add_argument("start-maximized") 
-                self.options.add_argument("disable-infobars")
-                self.options.add_argument(r"user-data-dir=.\cookies\\test")
-
-            def navigate(self, target) -> None:
-
-                self.driver.get(target) if target else print('[!] No target given. Please specify a URL.')
-
-            def extract_raw_data(self) -> str:
-
-                return self.driver.page_source
-
-            def extract_single_element(self,  selector: str, selector_type: By = By.CSS_SELECTOR) -> WebElement:
-
-                return self.driver.find_element(selector_type, selector)
-
-            def extract_all_elements(self, selector: str, selector_type: By = By.CSS_SELECTOR) -> list[WebElement]:
-
-                return self.driver.find_elements(selector_type, selector)
+            self.options.add_experimental_option('excludeSwitches', ['enable-logging']) #https://stackoverflow.com/questions/47392423/python-selenium-devtools-listening-on-ws-127-0-0-1
             
-            def input(self, field, keystosend) -> None:
-                
-                return self.driver.find_element(By.NAME, field).send_keys(keystosend)
-            
-            def get_screenshot(self, filename)-> None:
-                
-                return self.driver.get_screenshot_as_file(filename)
-            
-            def click_single_element(self,  selector: str, selector_type: By = By.CSS_SELECTOR) -> WebElement:
+            self.options.add_argument('log-level=3') #https://github.com/SeleniumHQ/selenium/issues/13095
 
-                return self.driver.find_element(selector_type, selector).click()
+            #self.options.set_capability("browserVersion", "117") #https://github.com/SeleniumHQ/selenium/issues/13095
+            self.options.add_argument("--remote-debugging-port=8080") #Corrected Mule 1 not opeing port for chrome
+            self.driver = webdriver.Chrome(options=self.options)
+            self.options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2}) 
+            self.options.add_argument("--no-sandbox") 
+            self.options.add_argument("--disable-setuid-sandbox") 
+            self.options.add_argument("--disable-dev-shm-using") 
+            self.options.add_argument("--disable-extensions") 
+            self.options.add_argument("--disable-gpu") 
+            self.options.add_argument("start-maximized") 
+            self.options.add_argument("disable-infobars")
+            self.options.add_argument(r"user-data-dir=.\cookies\\test")
 
-        # Initialize a new Scraper and navigate to a target
+        def navigate(self, target) -> None:
 
-        scraper = Scraper()
+            self.driver.get(target) if target else print('[!] No target given. Please specify a URL.')
 
-        scraper.setup_scraper()
+        def extract_raw_data(self) -> str:
 
-        scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/showHome.do')
+            return self.driver.page_source
 
+        def extract_single_element(self,  selector: str, selector_type: By = By.CSS_SELECTOR) -> WebElement:
 
-        searchitem  = searchfieldinput
+            return self.driver.find_element(selector_type, selector)
 
+        def extract_all_elements(self, selector: str, selector_type: By = By.CSS_SELECTOR) -> list[WebElement]:
 
-        single_element = scraper.extract_single_element('cuesLoginProductName', By.CLASS_NAME) #grabs title in page
-
-        self.logbox.insert('end', f"{timestamp}    {program_name} - Loggin into: {single_element.text} Please wait\n")
-        self.update() 
-
-        #Some vars
-        username = adminuser
-        password = adminpass
-        sleeptime = 0
-
-        #Go to webpage and ensure it scisco 
-        call_manager_page_header = scraper.extract_single_element('cuesLoginProductName', By.CLASS_NAME) #grabs title in page
-
-        #log into page
-        scraper.input("j_username",username )
-        scraper.input("j_password",password )
-        scraper.driver.find_element(By.XPATH,"/html/body/form/div[2]/table[1]/tbody/tr[1]/td[2]/table/tbody/tr[5]/td/button[1]").click() #Login button, used Full XPATH becuase couldnt get other to work #Source 1.https://www.selenium.dev/documentation/webdriver/elements/locators/ | 2.https://stackoverflow.com/questions/65657539/how-to-located-selenium-element-by-css-selector
-        time.sleep(sleeptime)
-        #ensure we are logged in
-        headertext_user = scraper.extract_single_element("cuesHeaderText", By.CLASS_NAME)
+            return self.driver.find_elements(selector_type, selector)
         
-        if (headertext_user.text != username):  #.text has to be added becuase element was being retun not its content #Source:https://stackoverflow.com/questions/70203815/python-selenium-printing-results-as-selenium-webdriver-remote-webelement-webe
-            print (f"Logged in user is:{headertext_user.text}  but the username provide is:{username}")
-        else:
-            scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/phoneFindList.do') #here we are only search by what the filter are by defualt (Device Name. starts with)
-            time.sleep(sleeptime)
-            scraper.driver.find_element(By.XPATH,'//*[@id="searchLimit0"]/option[2]').click() # select contains as filter    
-            time.sleep(sleeptime) 
-            scraper.input("searchString0",searchitem )
-            time.sleep(sleeptime)
-            scraper.driver.find_element(By.XPATH,"/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[7]/input").click()
-            time.sleep(sleeptime)
-            last_resistered = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(8)').text
-            device_Name_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(3) > a').text
-            device_description_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(4)').text
-            device_status_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(7)').text
-            device_IP_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(11)').text
+        def input(self, field, keystosend) -> None:
+            
+            return self.driver.find_element(By.NAME, field).send_keys(keystosend)
+        
+        def get_screenshot(self, filename)-> None:
+            
+            return self.driver.get_screenshot_as_file(filename)
+        
+        def click_single_element(self,  selector: str, selector_type: By = By.CSS_SELECTOR) -> WebElement:
+
+            return self.driver.find_element(selector_type, selector).click()
+
+    # Initialize a new Scraper and navigate to a target
+
+    scraper = Scraper()
+
+    scraper.setup_scraper()
+
+    scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/showHome.do')
 
 
-            self.LastRegistered_Text.configure(text = last_resistered)
-            self.PhoneStatus_Text.configure(text = device_status_line)
-            self.DeviceName_Text.configure(text = device_Name_line)
-            self.Description_Text.configure(text = device_description_line) 
-            self.Phone_IPV4_Text.configure(text = device_IP_line)
-    except:
-         self.logbox.insert('end', f"{timestamp}    {program_name} - Could not get information from Call Manager, please check user/pass or try later\n")
-         self.main_button_1.configure(state="enabled",  text="Search", fg_color="transparent", border_width=2,text_color=("gray10", "#DCE4EE"))
+    searchitem  = searchfieldinput
+
+
+    single_element = scraper.extract_single_element('cuesLoginProductName', By.CLASS_NAME) #grabs title in page
+
+    self.logbox.insert('end', f"{timestamp}    {program_name} - Loggin into: {single_element.text} Please wait\n")
+    self.update() 
+
+    #Some vars
+    username = adminuser
+    password = adminpass
+    sleeptime = 0
+
+    #Go to webpage and ensure it scisco 
+    call_manager_page_header = scraper.extract_single_element('cuesLoginProductName', By.CLASS_NAME) #grabs title in page
+
+    #log into page
+    scraper.input("j_username",username )
+    scraper.input("j_password",password )
+    scraper.driver.find_element(By.XPATH,"/html/body/form/div[2]/table[1]/tbody/tr[1]/td[2]/table/tbody/tr[5]/td/button[1]").click() #Login button, used Full XPATH becuase couldnt get other to work #Source 1.https://www.selenium.dev/documentation/webdriver/elements/locators/ | 2.https://stackoverflow.com/questions/65657539/how-to-located-selenium-element-by-css-selector
+    time.sleep(sleeptime)
+    #ensure we are logged in
+    headertext_user = scraper.extract_single_element("cuesHeaderText", By.CLASS_NAME)
+    
+    if (headertext_user.text != username):  #.text has to be added becuase element was being retun not its content #Source:https://stackoverflow.com/questions/70203815/python-selenium-printing-results-as-selenium-webdriver-remote-webelement-webe
+        print (f"Logged in user is:{headertext_user.text}  but the username provide is:{username}")
+    else:
+        scraper.navigate('https://vhalexfonucm01.v09.med.va.gov/ccmadmin/phoneFindList.do') #here we are only search by what the filter are by defualt (Device Name. starts with)
+        time.sleep(sleeptime)
+        scraper.driver.find_element(By.XPATH,'//*[@id="searchLimit0"]/option[2]').click() # select contains as filter    
+        time.sleep(sleeptime) 
+        scraper.input("searchString0",searchitem )
+        time.sleep(sleeptime)
+        scraper.driver.find_element(By.XPATH,"/html/body/table/tbody/tr/td/div/form[1]/div/table/tbody/tr[1]/td[7]/input").click()
+        time.sleep(sleeptime)
+        last_resistered = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(8)').text
+        device_Name_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(3) > a').text
+        device_description_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(4)').text
+        device_status_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(7)').text
+        device_IP_line = scraper.driver.find_element(By.CSS_SELECTOR,'#phoneFindListForm > table.cuesTableBg > tbody > tr.cuesTableRowEven > td:nth-child(11)').text
+
+
+        self.LastRegistered_Text.configure(text = last_resistered)
+        self.PhoneStatus_Text.configure(text = device_status_line)
+        self.DeviceName_Text.configure(text = device_Name_line)
+        self.Description_Text.configure(text = device_description_line) 
+        self.Phone_IPV4_Text.configure(text = device_IP_line)
+
 
 def strike(text): #enables use to pass text to and have it rewritten as strike through
     #https://stackoverflow.com/questions/25244454/python-create-strikethrough-strikeout-overstrike-string-type
@@ -502,11 +476,3 @@ def strike(text): #enables use to pass text to and have it rewritten as strike t
     for c in text:
         result = result + c + '\u0336'
     return result+" Under Maintenance"
-
-def callback(url):
-    webbrowser.open_new(url)
-
-def set_text(text):
-    e.delete(0,END)
-    e.insert(0,text)
-    return
