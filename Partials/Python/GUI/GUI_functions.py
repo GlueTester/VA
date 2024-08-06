@@ -215,21 +215,16 @@ def powercmd(psdef):
         outs, errs = proc.communicate()  
     #print(F"Outside try: {outs}")
 
-def adusercert(self, SAM):
+def usercert(self, SAM):
     proc = subprocess.Popen(["powershell.exe", f"Import-Module {psfunctions}; usercert('{SAM}')"], stdout=subprocess.PIPE)
-    #print (["powershell.exe", f"Import-Module {psfunctions}; vlanname {str(pingreply)} "])
     try:
         outs, errs = proc.communicate(timeout=15)
-        #print(F"Befor decode: {outs}")
         out = outs.decode("utf-8").strip("b'.\r\n'") # covnert outs from "bytes" to a "string" , then strips the trash from begin and end of output    
-        #print(F"After decode: {out}")
-        vlanresult = out
-        #print(F"results: {vlanresult}")
-        return vlanresult
+        return out
     except subprocess.TimeoutExpired:
         proc.kill()
         outs, errs = proc.communicate()  
-    #print(F"Outside try: {outs}")
+    
 
 
 def callback(self, P):

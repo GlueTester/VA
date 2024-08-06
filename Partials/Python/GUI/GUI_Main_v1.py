@@ -441,8 +441,9 @@ class App(customtkinter.CTk):
             # Search thinks its a User (Logic: contains VHA)
             elif "VHA" in searchfieldinput.upper(): #converted input ot uppercase 
                 userinfo = GUI_functions.Search_is_SAM(self, searchfieldinput)
-                adcertinfo = GUI_functions.adusercert(self, searchfieldinput )
-                print (adcertinfo)
+                certinfo = GUI_functions.usercert(self, searchfieldinput )
+                
+                print (certinfo)
                 #self.logbox.insert('end', f"{timestamp}    {program_name} - Found for ALL: {userinfo}\n")
                 try:
                     self.SAM_Text.configure(text=userinfo[0])
